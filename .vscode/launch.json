@@ -1,0 +1,32 @@
+{
+    "configurations": [
+        {
+            "name": "flutter_dtr_app (chrome)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "chrome",
+            "args": [
+                "--webport",
+                "5050"
+            ]
+        },
+        {
+            "name": "flutter_dtr_app (M2006C3MG)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "192.168.1.33:5555"
+        },
+        {
+            "name": "flutter_dtr_app (M2006C3MG) [release]",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "192.168.1.33:5555",
+            "args": [
+                "--release"
+            ]
+        },
+    ]
+}
