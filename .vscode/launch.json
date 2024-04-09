@@ -12,7 +12,7 @@
             ]
         },
         {
-            "name": "flutter_dtr_app (M2006C3MG)",
+            "name": "flutter_dtr_app (M2006C3MG) [debug]",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",

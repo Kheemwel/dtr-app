@@ -17,6 +17,8 @@ class BorderedContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isExpandble) {
+      // Expandable Container
+      // Stetch the container width and height to take the parent's size
       return Expanded(
           child: Container(
         height: height,

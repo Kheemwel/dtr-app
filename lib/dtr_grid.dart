@@ -72,37 +72,46 @@ class _DTRGridState extends State<DTRGrid> {
   }
 
   double _calculateTotalWorkHours(int weekIndex) {
-  double totalWorkHours = 0;
-  for (var day in _dtrWeeks[weekIndex]) {
-    final int inMinutes = day.timeIn.hour * 60 + day.timeIn.minute;
-    final int outMinutes = day.timeOut.hour * 60 + day.timeOut.minute;
+    double totalWorkHours = 0;
+    for (var day in _dtrWeeks[weekIndex]) {
+      final int inMinutes = day.timeIn.hour * 60 + day.timeIn.minute;
+      final int outMinutes = day.timeOut.hour * 60 + day.timeOut.minute;
 
-    final int lunchStartMinutes = _lunchStart.hour * 60 + _lunchStart.minute;
-    final int lunchEndMinutes = _lunchEnd.hour * 60 + _lunchEnd.minute;
+      final int lunchStartMinutes = _lunchStart.hour * 60 + _lunchStart.minute;
+      final int lunchEndMinutes = _lunchEnd.hour * 60 + _lunchEnd.minute;
 
-    final int scheduleStartMinutes = _scheduleStart.hour * 60 + _scheduleStart.minute;
-    final int scheduleEndMinutes = _scheduleEnd.hour * 60 + _scheduleEnd.minute;
+      final int scheduleStartMinutes =
+          _scheduleStart.hour * 60 + _scheduleStart.minute;
+      final int scheduleEndMinutes =
+          _scheduleEnd.hour * 60 + _scheduleEnd.minute;
 
-    if (inMinutes < outMinutes) {
-      final int effectiveInMinutes = inMinutes < scheduleStartMinutes ? scheduleStartMinutes : inMinutes;
-      final int effectiveOutMinutes = outMinutes > scheduleEndMinutes ? scheduleEndMinutes : outMinutes;
+      // Check if the time in is less than to time out
+      if (inMinutes < outMinutes) {
+        final int effectiveInMinutes =
+            inMinutes < scheduleStartMinutes ? scheduleStartMinutes : inMinutes;
+        final int effectiveOutMinutes =
+            outMinutes > scheduleEndMinutes ? scheduleEndMinutes : outMinutes;
 
-      final int workMinutes = effectiveOutMinutes - effectiveInMinutes;
-      int lunchMinutes = 0;
+        final int workMinutes = effectiveOutMinutes - effectiveInMinutes;
+        int lunchMinutes = 0;
 
-      // Check if there is an overlap between work hours and lunch break
-      if (effectiveOutMinutes > lunchStartMinutes && effectiveInMinutes < lunchEndMinutes) {
-        final int overlapStart = effectiveInMinutes < lunchStartMinutes ? lunchStartMinutes : effectiveInMinutes;
-        final int overlapEnd = effectiveOutMinutes > lunchEndMinutes ? lunchEndMinutes : effectiveOutMinutes;
-        lunchMinutes = overlapEnd - overlapStart;
+        // Check if there is an overlap between work hours and lunch break
+        if (effectiveOutMinutes > lunchStartMinutes &&
+            effectiveInMinutes < lunchEndMinutes) {
+          final int overlapStart = effectiveInMinutes < lunchStartMinutes
+              ? lunchStartMinutes
+              : effectiveInMinutes;
+          final int overlapEnd = effectiveOutMinutes > lunchEndMinutes
+              ? lunchEndMinutes
+              : effectiveOutMinutes;
+          lunchMinutes = overlapEnd - overlapStart;
+        }
+
+        totalWorkHours += (workMinutes - lunchMinutes) / 60.0;
       }
-
-      totalWorkHours += (workMinutes - lunchMinutes) / 60.0;
     }
+    return totalWorkHours;
   }
-  return totalWorkHours;
-}
-
 
   double _calculateTotalWorkHoursAllWeeks() {
     double totalWorkHours = 0;
@@ -112,16 +121,21 @@ class _DTRGridState extends State<DTRGrid> {
     return totalWorkHours;
   }
 
+  // Runs every time the setState() is called
   @override
   void setState(VoidCallback fn) {
     super.setState(fn);
+
+    // Save the data every changes
     _saveData();
   }
 
+  // Load data from SharedPref
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     final String? json = prefs.getString('dtr');
 
+    // Access the data if the key is not null and blank
     if (json != null && json != '') {
       final DTR dtr = DTR.fromJson(JSON.toMap(json));
       setState(() {
@@ -134,6 +148,7 @@ class _DTRGridState extends State<DTRGrid> {
     }
   }
 
+  // Save data to SharedPref
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -149,90 +164,139 @@ class _DTRGridState extends State<DTRGrid> {
     prefs.setString('dtr', json);
   }
 
+  // Show dialog for a quick quide
+  void _showGuide(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Center(child: Text('Quick Guide'),),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('1. Lunch breaks are excluded from your daily work hours.'),
+                SizedBox(height: 10,),
+                Text('2. Daily work hours are calculated from the start of your schedule to its end.'),
+                SizedBox(height: 10,),
+                Text('3. Gray cells indicate blank records. Tap to set the date, time in, and time out.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Center(child: TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),)
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // AppBar
       appBar: AppBar(
         title: const Text('Daily Time Record'),
+        actions: [
+          // Help Button
+          IconButton(
+            tooltip: 'Help',
+              onPressed: () => _showGuide(context),
+              icon: const Icon(Icons.help, color: Colors.white,))
+        ],
       ),
+
+      // Main Content
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(padding: const EdgeInsets.all(10), child: Wrap(
-            spacing: 25,
-            runSpacing: 25,
-            children: [
-              Column(
-                children: [
-                  Text('Lunch Start: ${_lunchStart.format(context)}'),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final TimeOfDay? pickedTime = await showTimePicker(
-                        context: context,
-                        initialTime: _lunchStart,
-                      );
-                      if (pickedTime != null) {
-                        _updateLunchStart(pickedTime);
-                      }
-                    },
-                    child: const Text('Select Lunch Start'),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Text('Lunch End: ${_lunchEnd.format(context)}'),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final TimeOfDay? pickedTime = await showTimePicker(
-                        context: context,
-                        initialTime: _lunchEnd,
-                      );
-                      if (pickedTime != null) {
-                        _updateLunchEnd(pickedTime);
-                      }
-                    },
-                    child: const Text('Select Lunch End'),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Text('Schedule Start: ${_scheduleStart.format(context)}'),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final TimeOfDay? pickedTime = await showTimePicker(
-                        context: context,
-                        initialTime: _scheduleStart,
-                      );
-                      if (pickedTime != null) {
-                        _updateScheduleStart(pickedTime);
-                      }
-                    },
-                    child: const Text('Select Schedule Start'),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Text('Schedule End: ${_scheduleEnd.format(context)}'),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final TimeOfDay? pickedTime = await showTimePicker(
-                        context: context,
-                        initialTime: _scheduleEnd,
-                      );
-                      if (pickedTime != null) {
-                        _updateScheduleEnd(pickedTime);
-                      }
-                    },
-                    child: const Text('Select Schedule End'),
-                  ),
-                ],
-              ),
-            ],
-          ),),
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: 
+            // Configuration Section
+            Wrap(
+              spacing: 25,
+              runSpacing: 25,
+              children: [
+                Column(
+                  children: [
+                    Text('Lunch Start: ${_lunchStart.format(context)}'),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final TimeOfDay? pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: _lunchStart,
+                        );
+                        if (pickedTime != null) {
+                          _updateLunchStart(pickedTime);
+                        }
+                      },
+                      child: const Text('Select Lunch Start'),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text('Lunch End: ${_lunchEnd.format(context)}'),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final TimeOfDay? pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: _lunchEnd,
+                        );
+                        if (pickedTime != null) {
+                          _updateLunchEnd(pickedTime);
+                        }
+                      },
+                      child: const Text('Select Lunch End'),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text('Schedule Start: ${_scheduleStart.format(context)}'),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final TimeOfDay? pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: _scheduleStart,
+                        );
+                        if (pickedTime != null) {
+                          _updateScheduleStart(pickedTime);
+                        }
+                      },
+                      child: const Text('Select Schedule Start'),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text('Schedule End: ${_scheduleEnd.format(context)}'),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final TimeOfDay? pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: _scheduleEnd,
+                        );
+                        if (pickedTime != null) {
+                          _updateScheduleEnd(pickedTime);
+                        }
+                      },
+                      child: const Text('Select Schedule End'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          
           const SizedBox(height: 25),
+
+          // DTR Table
           Expanded(
               child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 100),
@@ -245,6 +309,7 @@ class _DTRGridState extends State<DTRGrid> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      // Table Header
                       const SizedBox(
                         height: 75,
                         child: Row(
@@ -274,7 +339,7 @@ class _DTRGridState extends State<DTRGrid> {
                               timeOutText: 'Time Out',
                             ),
                             DTRCell(
-                              dateText: 'Monday',
+                              dateText: 'Friday',
                               timeInText: 'Time In',
                               timeOutText: 'Time Out',
                             ),
@@ -295,6 +360,8 @@ class _DTRGridState extends State<DTRGrid> {
                           ],
                         ),
                       ),
+
+                      // Table Rows
                       ...List.generate(
                         _dtrWeeks.length,
                         (weekIndex) => SizedBox(
@@ -317,7 +384,7 @@ class _DTRGridState extends State<DTRGrid> {
                                 7,
                                 (dayIndex) {
                                   final day = _dtrWeeks[weekIndex][dayIndex];
-                                  return GestureDetector(
+                                  return Tooltip(message: 'Edit', child: GestureDetector(
                                       onTap: () async {
                                         final DateTime? date =
                                             await showDatePicker(
@@ -359,7 +426,7 @@ class _DTRGridState extends State<DTRGrid> {
                                         timeOutText: day.timeOut.hour > 0
                                             ? day.timeOut.format(context)
                                             : '',
-                                      ));
+                                      )),);
                                 },
                               ),
                               BorderedContainer(
@@ -371,6 +438,8 @@ class _DTRGridState extends State<DTRGrid> {
                           ),
                         ),
                       ),
+
+                      // Table Footer
                       Row(
                         children: [
                           const SizedBox(
@@ -416,6 +485,8 @@ class _DTRGridState extends State<DTRGrid> {
           )),
         ],
       ),
+
+      // Floating Action Button
       floatingActionButton: ElevatedButton(
         onPressed: _addNewWeek,
         child: const Text('Add New Week'),
