@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/core/constants.dart';
-import 'package:flutter_dtr_app/screens/dtr_grid.dart';
+import 'package:flutter_dtr_app/core/utilities/responsive.dart';
+import 'package:flutter_dtr_app/screens/main_screen.dart';
 import 'package:flutter_dtr_app/widgets/title_text.dart';
 
+/// The App's Splash Screen
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -19,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
       () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const DTRGrid()),
+          MaterialPageRoute(builder: (context) => const MainScreen()),
         );
       },
     );
@@ -27,15 +29,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    const baseFontSize = 24;
-    const baseImageSize = 162;
-    final fontSize = baseFontSize * (screenWidth / 360);
-    final imageSize = baseImageSize * (screenWidth / 360);
+    final fontSize = getResponsiveSize(context, 24);
+    final imageSize = getResponsiveSize(context, 162);
 
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(30),
         child: Column(
           children: [
             Expanded(
@@ -49,9 +48,4 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
-}
-
-@override
-Widget build(BuildContext context) {
-  return const Placeholder();
 }
