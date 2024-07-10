@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
-import 'package:flutter_dtr_app/core/utilities/responsive.dart';
 import 'package:flutter_dtr_app/screens/home/dtr_grid.dart';
 import 'package:flutter_dtr_app/screens/home/user_guide.dart';
 import 'package:flutter_dtr_app/screens/report.dart';
 import 'package:flutter_dtr_app/screens/settings.dart';
 import 'package:flutter_dtr_app/widgets/back_button.dart';
-import 'package:flutter_dtr_app/widgets/title_text.dart';
+import 'package:flutter_dtr_app/widgets/typography.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 /// The app's main screen where the bottom navigation bar is displayed
@@ -41,9 +40,9 @@ class _MainScreenState extends State<MainScreen> {
       _settingsAppBar(context),
     ];
 
-    final double navIconSize = getResponsiveSize(context, 24);
-    final double navLabelSize = getResponsiveSize(context, 14);
-    final navLabelStyle =
+    const double navIconSize = 24;
+    const double navLabelSize = 14;
+    const navLabelStyle =
         TextStyle(fontWeight: FontWeight.w500, fontSize: navLabelSize);
 
     return Scaffold(
@@ -57,19 +56,18 @@ class _MainScreenState extends State<MainScreen> {
 
   AppBar _settingsAppBar(BuildContext context) {
     return AppBar(
-      leading: buildBackButton(
-          context: context, size: getResponsiveSize(context, 24)),
-      title:
-          buildTitleText('Settings', fontSize: getResponsiveSize(context, 24)),
+      title: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+        child: buildHeading1Text(context, 'Settings'),
+      ),
     );
   }
 
   AppBar _homeAppBar(BuildContext context) {
     return AppBar(
       title: Padding(
-        padding: EdgeInsets.fromLTRB(getResponsiveSize(context, 24), 0, 0, 0),
-        child: buildTitleText('Timesheet',
-            fontSize: getResponsiveSize(context, 24)),
+        padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+        child: buildHeading1Text(context, 'Timesheet'),
       ),
       actions: [
         // Help Button
@@ -86,9 +84,8 @@ class _MainScreenState extends State<MainScreen> {
 
   AppBar _reportAppBar(BuildContext context) {
     return AppBar(
-      leading: buildBackButton(
-          context: context, size: getResponsiveSize(context, 24)),
-      title: buildTitleText('Report', fontSize: getResponsiveSize(context, 24)),
+      leading: buildBackButton(context: context, size: 24),
+      title: buildHeading1Text(context, 'Report'),
     );
   }
 

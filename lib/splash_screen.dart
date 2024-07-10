@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/utilities/responsive.dart';
 import 'package:flutter_dtr_app/screens/main_screen.dart';
-import 'package:flutter_dtr_app/widgets/title_text.dart';
 
 /// The App's Splash Screen
 class SplashScreen extends StatefulWidget {
@@ -29,20 +28,25 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fontSize = getResponsiveSize(context, 24);
-    final imageSize = getResponsiveSize(context, 162);
+    final double imageSize = getResponsiveSize(context, 162);
 
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(30),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: Center(
-                child: Image.asset(appLogo, width: imageSize, height: imageSize),
+                child:
+                    Image.asset(appLogo, width: imageSize, height: imageSize),
               ),
             ),
-            buildTitleText("Daily Time Record", fontSize: fontSize, fontWeight: FontWeight.w900),
+            Text(
+              "Daily Time Record",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.displayLarge,
+            )
           ],
         ),
       ),
