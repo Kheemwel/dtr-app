@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
-import 'package:flutter_dtr_app/screens/home/dtr_grid.dart';
 import 'package:flutter_dtr_app/screens/home/user_guide.dart';
 import 'package:flutter_dtr_app/screens/report.dart';
-import 'package:flutter_dtr_app/screens/settings.dart';
-import 'package:flutter_dtr_app/widgets/back_button.dart';
+import 'package:flutter_dtr_app/screens/settings/settings.dart';
+import 'package:flutter_dtr_app/screens/home/home_screen.dart';
 import 'package:flutter_dtr_app/widgets/typography.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -30,7 +29,8 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final screens = [
       const ReportScreen(),
-      const DTRGrid(),
+      // const DTRGrid(),
+      const HomeScreen(),
       const SettingsScreen()
     ];
 
@@ -58,7 +58,7 @@ class _MainScreenState extends State<MainScreen> {
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-        child: buildHeading1Text(context, 'Settings'),
+        child: buildHeading1Text('Settings'),
       ),
     );
   }
@@ -67,7 +67,7 @@ class _MainScreenState extends State<MainScreen> {
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-        child: buildHeading1Text(context, 'Timesheet'),
+        child: buildHeading1Text('Timesheet'),
       ),
       actions: [
         // Help Button
@@ -77,15 +77,20 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(
               Icons.question_mark_rounded,
               color: palette['primary'],
-            ))
+            )),
+        const SizedBox(
+          width: 20,
+        ),
       ],
     );
   }
 
   AppBar _reportAppBar(BuildContext context) {
     return AppBar(
-      leading: buildBackButton(context: context, size: 24),
-      title: buildHeading1Text(context, 'Report'),
+      title: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+        child: buildHeading1Text('Report'),
+      ),
     );
   }
 

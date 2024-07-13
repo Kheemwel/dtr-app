@@ -2,53 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
 
 /// Jeading (H1) text
-Text buildHeading1Text(BuildContext context, String text) {
+Text buildHeading1Text(String text) {
   return Text(
     text,
-    style: Theme.of(context).textTheme.titleLarge,
+    style: textTheme.titleLarge,
   );
 }
 
 /// Jeading (H2) text
-Text buildHeading2Text(BuildContext context, String text) {
+Text buildHeading2Text(String text) {
   return Text(
     text,
-    style: Theme.of(context).textTheme.titleMedium,
+    style: textTheme.titleMedium,
   );
 }
 
 /// Heading (H3) text
-Text buildHeading3Text(BuildContext context, String text) {
+Text buildHeading3Text(String text) {
   return Text(
     text,
-    style: Theme.of(context).textTheme.titleSmall,
+    style: textTheme.titleSmall,
   );
 }
 
 /// Text for displaying titles or menu labels
-Text buildTitleText(BuildContext context, String text) {
+Text buildTitleText(String text, {double fontsize = 16}) {
   return Text(
     text,
-    style: Theme.of(context).textTheme.labelMedium,
+    style: textTheme.labelMedium!.copyWith(fontSize: fontsize),
   );
 }
 
 /// Text for displaying text for buttons
-Text buildButtonText(BuildContext context, String text) {
+Text buildButtonText(String text) {
   return Text(
     text,
-    style: Theme.of(context).textTheme.labelLarge,
+    style: textTheme.labelLarge,
   );
 }
 
 /// Text for displaying regular text
-Text buildRegularText(BuildContext context, String text,
-    {double fontSize = 12, Color? color}) {
+Text buildRegularText(String text, {double fontSize = 12, Color? color}) {
   return Text(
     text,
-    style: Theme.of(context)
-        .textTheme
-        .bodyMedium!
+    style: textTheme.bodyMedium!
         .copyWith(fontSize: fontSize, color: color ?? palette['dark']),
   );
 }

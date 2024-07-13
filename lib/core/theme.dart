@@ -11,6 +11,7 @@ final Map<String, Color> palette = {
   'danger': const Color(0xffffdbd9),
   'disabled': const Color(0xff8e8e93),
   'dark': const Color(0xff262626),
+  'faded': const Color(0xffe5e5ea),
 };
 
 /// Customized App Bar Theme
@@ -45,6 +46,7 @@ final textTheme = TextTheme(
       fontWeight: FontWeight.w800 // ExtraBold
       ), // H1
   titleMedium: TextStyle(
+      height: 1,
       fontFamily: "Nunito",
       color: palette['primary'],
       fontSize: 32,
@@ -70,6 +72,14 @@ final textTheme = TextTheme(
       ), // Style for text in buttons
 );
 
+/// Customized style of Floating Action Button
+final floatingActionButtonTheme = FloatingActionButtonThemeData(
+  backgroundColor: palette['secondary'],
+  splashColor: palette['tertiary'],
+  hoverColor: palette['tertiary'],
+  shape: const CircleBorder(),
+);
+
 /// Customized Theme Data
 final themeData = ThemeData(
   colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
@@ -78,4 +88,5 @@ final themeData = ThemeData(
   scaffoldBackgroundColor: Colors.white,
   appBarTheme: appBarTheme,
   textTheme: textTheme,
+  floatingActionButtonTheme: floatingActionButtonTheme,
 );
