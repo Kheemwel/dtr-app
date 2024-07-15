@@ -49,3 +49,11 @@ Text buildRegularText(String text, {double fontSize = 12, Color? color}) {
         .copyWith(fontSize: fontSize, color: color ?? palette['dark']),
   );
 }
+
+/// Text for light labels
+Text buildLightText(String text) {
+  return Text(
+    text,
+    style: textTheme.bodySmall,
+  );
+}

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
 import 'package:flutter_dtr_app/screens/home/user_guide.dart';
-import 'package:flutter_dtr_app/screens/report.dart';
+import 'package:flutter_dtr_app/screens/report/report.dart';
 import 'package:flutter_dtr_app/screens/settings/settings.dart';
 import 'package:flutter_dtr_app/screens/home/home_screen.dart';
 import 'package:flutter_dtr_app/widgets/typography.dart';

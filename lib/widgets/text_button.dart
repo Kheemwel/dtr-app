@@ -40,7 +40,7 @@ TextButton buildTextButtonLarge(String text, {required Function onPressed}) {
           return palette['secondary']!;
         }),
         padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(vertical: 15, horizontal: 0)),
+            EdgeInsets.symmetric(vertical: 20, horizontal: 0)),
         shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
       ),

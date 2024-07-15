@@ -33,11 +33,17 @@ final textTheme = TextTheme(
       color: palette['primary'],
       fontWeight: FontWeight.w900 // Black
       ), // Style for splash screen title
+  bodySmall: TextStyle(
+      color: palette['dark'],
+      fontFamily: 'Roboto',
+      fontSize: 16,
+      fontWeight: FontWeight.w300 // Light
+      ), // Style for light labels
   bodyMedium: TextStyle(
       color: palette['dark'],
       fontFamily: 'Roboto',
       fontSize: 12,
-      fontWeight: FontWeight.w400 // Regukar
+      fontWeight: FontWeight.w400 // Regular
       ), // Default style for regular text
   titleLarge: TextStyle(
       fontFamily: "Nunito",
@@ -80,6 +86,11 @@ final floatingActionButtonTheme = FloatingActionButtonThemeData(
   shape: const CircleBorder(),
 );
 
+/// Customized theme for Radio Buttons
+final radioTheme = RadioThemeData(
+  fillColor: WidgetStatePropertyAll(palette['primary']),
+);
+
 /// Customized Theme Data
 final themeData = ThemeData(
   colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
@@ -89,4 +100,5 @@ final themeData = ThemeData(
   appBarTheme: appBarTheme,
   textTheme: textTheme,
   floatingActionButtonTheme: floatingActionButtonTheme,
+  radioTheme: radioTheme,
 );
