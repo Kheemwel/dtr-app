@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dtr_app/core/api/datetime_api.dart';
 import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
+import 'package:flutter_dtr_app/widgets/data_overview_container.dart';
 import 'package:flutter_dtr_app/widgets/date_picker_button.dart';
 import 'package:flutter_dtr_app/widgets/text_button.dart';
 import 'package:flutter_dtr_app/widgets/typography.dart';
@@ -149,7 +149,7 @@ class _ReportScreenState extends State<ReportScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-            child: _displayData(
+            child: buildDataOverviewContainer(
                 icon: SvgPicture.asset(
                   iconCalendar,
                   width: 26,
@@ -159,8 +159,11 @@ class _ReportScreenState extends State<ReportScreen> {
                 ),
                 title: '0',
                 subtitle: 'Days Worked')),
+        const SizedBox(
+          width: 20,
+        ),
         Expanded(
-            child: _displayData(
+            child: buildDataOverviewContainer(
                 icon: Icon(
                   Icons.schedule,
                   size: 26,
@@ -168,27 +171,6 @@ class _ReportScreenState extends State<ReportScreen> {
                 ),
                 title: '0',
                 subtitle: 'Hours')),
-      ],
-    );
-  }
-
-  Row _displayData(
-      {required Widget icon, required String title, required String subtitle}) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        icon,
-        const SizedBox(
-          width: 10,
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildHeading2Text(title),
-            buildRegularText(subtitle),
-          ],
-        )
       ],
     );
   }

@@ -14,8 +14,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String? selectedDateFormat;
-  String? selectedTimeFormat;
+  String? _selectedDateFormat;
+  String? _selectedTimeFormat;
 
   late TimeOfDay _scheduleStart = const TimeOfDay(hour: 8, minute: 0);
   late TimeOfDay _scheduleEnd = const TimeOfDay(hour: 17, minute: 0);
@@ -30,8 +30,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _formatSelection(
           label: 'Date Format',
           items: dateFormats,
+          value: _selectedDateFormat,
           onSelected: (selected) => setState(() {
-            selectedDateFormat = selected;
+            _selectedDateFormat = selected;
           }),
         ),
         const SizedBox(
@@ -40,8 +41,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _formatSelection(
           label: 'Time Format',
           items: timeFormats,
+          value: _selectedTimeFormat,
           onSelected: (selected) => setState(() {
-            selectedTimeFormat = selected;
+            _selectedTimeFormat = selected;
           }),
         ),
         const SizedBox(
@@ -101,8 +103,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Column _formatSelection(
       {required String label,
       required Map<String, String> items,
+      required String? value,
       required Function(String? selected) onSelected}) {
     List<String> itemKeys = items.keys.toList();
+    value = value ?? itemKeys.first;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,14 +141,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onSelected(selectedItem);
             },
             dropdownMenuEntries:
-                itemKeys.map<DropdownMenuEntry<String>>((String value) {
+                itemKeys.map<DropdownMenuEntry<String>>((String val) {
               return DropdownMenuEntry<String>(
-                value: value,
-                label: items[value]!,
+                value: val,
+                label: items[val]!,
+                style: ButtonStyle(
+                  backgroundBuilder: (context, states, child) {
+                    Color? backgroundColor;
+                    if (value == val) {
+                      backgroundColor = palette['primary']!;
+                    } else if (states.contains(WidgetState.hovered)) {
+                      backgroundColor = palette['inputs']!;
+                    } else {
+                      backgroundColor = Colors.white;
+                    }
+
+                    return ColoredBox(
+                      color: backgroundColor,
+                      child: child,
+                    );
+                  },
+                ),
                 labelWidget: ConstrainedBox(
                   constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width - 100),
-                  child: buildRegularText(items[value]!, fontSize: 14),
+                  child: buildRegularText(items[val]!,
+                      fontSize: 14, color: value == val ? Colors.white : null),
                 ),
               );
             }).toList(),
@@ -190,29 +212,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(
                 height: 10,
               ),
-              Text(
-                'Are you sure you want to clear all the data of the application?',
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(fontSize: 16),
-              ),
+              buildRegularText(
+                  'Are you sure you want to clear all the data of the application?',
+                  fontSize: 16,
+                  isCentered: true),
               const SizedBox(
-                height: 20,
+                height: 30,
               ),
               Row(
                 children: [
                   Expanded(
-                    child: TextButton(
-                        style: TextButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 0)),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: buildRegularText('No', fontSize: 20)),
+                    child: buildTextButtonSmall('No', onPressed: () {
+                      Navigator.pop(context);
+                    }, inverted: true),
                   ),
                   const SizedBox(
                     width: 10,

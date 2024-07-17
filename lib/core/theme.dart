@@ -5,8 +5,9 @@ final Map<String, Color> palette = {
   'primary': const Color(0xff192655),
   'secondary': const Color(0xff3876bf),
   'tertiary': const Color(0xff2f64a1),
+  'tertiary-variant': const Color(0xffeaf4ff),
   'icons': const Color(0xffe1aa74),
-  'overview': const Color(0xfff3f0ca),
+  'overview': const Color(0xfffffeec),
   'inputs': const Color(0xfff2f2f7),
   'danger': const Color(0xffffdbd9),
   'disabled': const Color(0xff8e8e93),
@@ -91,9 +92,76 @@ final radioTheme = RadioThemeData(
   fillColor: WidgetStatePropertyAll(palette['primary']),
 );
 
+/// Customized theme for Date Picker
+final datePickerTheme = DatePickerThemeData(
+  dividerColor: Colors.transparent,
+  backgroundColor: Colors.white,
+  dayOverlayColor: WidgetStatePropertyAll(palette['secondary']),
+  yearOverlayColor: WidgetStatePropertyAll(palette['secondary']),
+  dayForegroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+    if (states.contains(WidgetState.selected)) {
+      return Colors.white;
+    }
+
+    if (states.contains(WidgetState.disabled)) {
+      return palette['disabled']!;
+    }
+
+    return palette['dark']!;
+  }),
+  dayBackgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+    if (states.contains(WidgetState.selected)) {
+      return palette['primary']!;
+    }
+    return Colors.transparent;
+  }),
+  yearForegroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+    if (states.contains(WidgetState.selected)) {
+      return Colors.white;
+    }
+
+    if (states.contains(WidgetState.disabled)) {
+      return palette['disabled']!;
+    }
+
+    return palette['dark']!;
+  }),
+  yearBackgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+    if (states.contains(WidgetState.selected)) {
+      return palette['primary']!;
+    }
+    return Colors.transparent;
+  }),
+  todayForegroundColor: const WidgetStatePropertyAll(Colors.white),
+  todayBackgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+    if (states.contains(WidgetState.selected)) {
+      return palette['primary']!;
+    }
+    return palette['secondary']!;
+  }),
+  headerForegroundColor: palette['dark'],
+);
+
+/// Customized theme for menus
+final menuTheme = MenuThemeData(
+    style: MenuStyle(
+  shape: WidgetStatePropertyAll(
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+));
+
+/// Cutomized theme for popup menus
+final popupMenuTheme = PopupMenuThemeData(
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+);
+
 /// Customized Theme Data
 final themeData = ThemeData(
-  colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+  colorScheme: ColorScheme.light(
+    primary: palette['primary']!,
+    onPrimary: Colors.white,
+    surface: Colors.white,
+    onSurface: palette['dark']!,
+  ),
   fontFamily: "Roboto", // Default Font
   useMaterial3: true,
   scaffoldBackgroundColor: Colors.white,
@@ -101,4 +169,8 @@ final themeData = ThemeData(
   textTheme: textTheme,
   floatingActionButtonTheme: floatingActionButtonTheme,
   radioTheme: radioTheme,
+  dialogBackgroundColor: Colors.white,
+  datePickerTheme: datePickerTheme,
+  menuTheme: menuTheme,
+  popupMenuTheme: popupMenuTheme,
 );

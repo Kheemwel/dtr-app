@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
 import 'package:flutter_dtr_app/screens/home/add_entry.dart';
+import 'package:flutter_dtr_app/widgets/calendar_popup_menu_item.dart';
 import 'package:flutter_dtr_app/widgets/typography.dart';
 
 class CalendarView extends StatefulWidget {
@@ -77,6 +78,7 @@ class _CalendarViewState extends State<CalendarView> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         PopupMenuButton<String>(
+            surfaceTintColor: Colors.white,
             tooltip: 'Select Month',
             constraints: const BoxConstraints(maxHeight: 200),
             position: PopupMenuPosition.under,
@@ -88,12 +90,11 @@ class _CalendarViewState extends State<CalendarView> {
               });
             },
             itemBuilder: (BuildContext context) => List.generate(
-                  _months.length,
-                  (month) => PopupMenuItem<String>(
-                    value: _months[month],
-                    child: buildHeading3Text(_months[month]),
-                  ),
-                ),
+                _months.length,
+                (month) => CalendarPopupMenuItem(
+                      value: _months[month],
+                      isSelected: month == _currentDate.month - 1,
+                    )),
             child: buildHeading3Text(_months[_currentDate.month - 1])),
         const SizedBox(
           width: 5,
@@ -112,10 +113,8 @@ class _CalendarViewState extends State<CalendarView> {
             itemBuilder: (BuildContext context) => List.generate(
                     _maximumYear - _minimumYear + 1,
                     (index) => _minimumYear + index)
-                .map((year) => PopupMenuItem<int>(
-                      value: year,
-                      child: buildHeading3Text(year.toString()),
-                    ))
+                .map((year) => CalendarPopupMenuItem(
+                    value: year, isSelected: year == _selectedYear))
                 .toList(),
             child: buildHeading3Text(_selectedYear.toString())),
         const Spacer(),
@@ -206,11 +205,14 @@ class _CalendarViewState extends State<CalendarView> {
     final dateToday = DateTime.now();
     final bool isCurrentDate = date.isAtSameMomentAs(
         DateTime(dateToday.year, dateToday.month, dateToday.day));
-    final color = isPreviousMonth || isNextMonth
-        ? palette['faded']
-        : isCurrentDate
-            ? palette['dark']
-            : Colors.white;
+    Color? textColor;
+    if (isPreviousMonth || isNextMonth) {
+      textColor = palette['faded'];
+    } else if (isCurrentDate) {
+      textColor = palette['dark'];
+    } else {
+      textColor = Colors.white;
+    }
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -234,7 +236,7 @@ class _CalendarViewState extends State<CalendarView> {
                   : null,
             ),
             child: buildRegularText(date.day.toString(),
-                color: color, fontSize: 18)),
+                color: textColor, fontSize: 18)),
       ),
     );
   }

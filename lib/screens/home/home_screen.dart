@@ -3,7 +3,7 @@ import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
 import 'package:flutter_dtr_app/screens/home/add_entry.dart';
 import 'package:flutter_dtr_app/screens/home/calendar_view.dart';
-import 'package:flutter_dtr_app/widgets/typography.dart';
+import 'package:flutter_dtr_app/widgets/data_overview_container.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-            child: _displayData(
+            child: buildDataOverviewContainer(
                 icon: SvgPicture.asset(
                   iconCalendar,
                   width: 26,
@@ -67,8 +67,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 title: '34',
                 subtitle: 'Total Days Worked')),
+        const SizedBox(
+          width: 20,
+        ),
         Expanded(
-            child: _displayData(
+            child: buildDataOverviewContainer(
                 icon: Icon(
                   Icons.schedule,
                   size: 26,
@@ -76,27 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 title: '400',
                 subtitle: 'Total Hours')),
-      ],
-    );
-  }
-
-  Row _displayData(
-      {required Widget icon, required String title, required String subtitle}) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        icon,
-        const SizedBox(
-          width: 10,
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildHeading2Text(title),
-            buildRegularText(subtitle),
-          ],
-        )
       ],
     );
   }

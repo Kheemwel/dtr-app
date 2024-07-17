@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
 
-/// Jeading (H1) text
+/// Heading (H1) text
 Text buildHeading1Text(String text) {
   return Text(
     text,
@@ -9,7 +9,7 @@ Text buildHeading1Text(String text) {
   );
 }
 
-/// Jeading (H2) text
+/// Heading (H2) text
 Text buildHeading2Text(String text) {
   return Text(
     text,
@@ -34,17 +34,20 @@ Text buildTitleText(String text, {double fontsize = 16}) {
 }
 
 /// Text for displaying text for buttons
-Text buildButtonText(String text) {
+Text buildButtonText(String text, {Color? color}) {
   return Text(
     text,
-    style: textTheme.labelLarge,
+    textAlign: TextAlign.center,
+    style: textTheme.labelLarge!.copyWith(color: color ?? Colors.white),
   );
 }
 
 /// Text for displaying regular text
-Text buildRegularText(String text, {double fontSize = 12, Color? color}) {
+Text buildRegularText(String text,
+    {double fontSize = 12, Color? color, bool isCentered = false}) {
   return Text(
     text,
+    textAlign: isCentered ? TextAlign.center : null,
     style: textTheme.bodyMedium!
         .copyWith(fontSize: fontSize, color: color ?? palette['dark']),
   );

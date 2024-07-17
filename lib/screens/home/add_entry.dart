@@ -30,6 +30,8 @@ class _AddEntryState extends State<AddEntry> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset:
+          false, // Prevent the save button to move on the top of keyboard when inputing notes
       appBar: AppBar(
         leading: buildBackButton(context: context, size: 24),
         title: buildHeading1Text('Add Entry'),
@@ -86,7 +88,13 @@ class _AddEntryState extends State<AddEntry> {
                 Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16),
             minLines: 1,
             maxLines: 5,
-            decoration: const InputDecoration(border: InputBorder.none),
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Type here...',
+                hintStyle: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .copyWith(color: palette['disabled'], fontSize: 16)),
           ),
         )
       ],

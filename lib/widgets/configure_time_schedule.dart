@@ -97,15 +97,9 @@ Future<void> _configureTimeScheduleDialog(
                 Row(
                   children: [
                     Expanded(
-                      child: TextButton(
-                          style: TextButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 0)),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: buildRegularText('Cancel', fontSize: 20)),
+                      child: buildTextButtonSmall('Cancel', onPressed: () {
+                        Navigator.pop(context);
+                      }, inverted: true),
                     ),
                     const SizedBox(
                       width: 10,

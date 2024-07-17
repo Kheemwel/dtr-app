@@ -35,9 +35,9 @@ class _MainScreenState extends State<MainScreen> {
     ];
 
     final appBars = [
-      _reportAppBar(context),
-      _homeAppBar(context),
-      _settingsAppBar(context),
+      _reportAppBar(),
+      _homeAppBar(),
+      _settingsAppBar(),
     ];
 
     const double navIconSize = 24;
@@ -54,7 +54,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  AppBar _settingsAppBar(BuildContext context) {
+  AppBar _settingsAppBar() {
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
@@ -63,7 +63,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  AppBar _homeAppBar(BuildContext context) {
+  AppBar _homeAppBar() {
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
@@ -71,13 +71,16 @@ class _MainScreenState extends State<MainScreen> {
       ),
       actions: [
         // Help Button
-        IconButton(
-            tooltip: 'Help',
-            onPressed: () => showGuide(context),
-            icon: Icon(
-              Icons.question_mark_rounded,
-              color: palette['primary'],
-            )),
+        CircleAvatar(
+          backgroundColor: palette['overview'],
+          child: IconButton(
+              tooltip: 'Help',
+              onPressed: () => showGuide(context),
+              icon: Icon(
+                Icons.question_mark_rounded,
+                color: palette['primary'],
+              )),
+        ),
         const SizedBox(
           width: 20,
         ),
@@ -85,7 +88,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  AppBar _reportAppBar(BuildContext context) {
+  AppBar _reportAppBar() {
     return AppBar(
       title: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
