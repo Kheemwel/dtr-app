@@ -5,7 +5,7 @@ final Map<String, Color> palette = {
   'primary': const Color(0xff192655),
   'secondary': const Color(0xff3876bf),
   'tertiary': const Color(0xff2f64a1),
-  'tertiary-variant': const Color(0xffeaf4ff),
+  'tertiaryVariant': const Color(0xffeaf4ff),
   'icons': const Color(0xffe1aa74),
   'overview': const Color(0xfffffeec),
   'inputs': const Color(0xfff2f2f7),
@@ -145,8 +145,7 @@ final datePickerTheme = DatePickerThemeData(
 /// Customized theme for menus
 final menuTheme = MenuThemeData(
     style: MenuStyle(
-  shape: WidgetStatePropertyAll(
-      RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
 ));
 
 /// Cutomized theme for popup menus

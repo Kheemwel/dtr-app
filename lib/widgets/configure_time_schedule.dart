@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dtr_app/core/api/timeofday_api.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
+import 'package:flutter_dtr_app/widgets/show_snackbar.dart';
 import 'package:flutter_dtr_app/widgets/text_button.dart';
 import 'package:flutter_dtr_app/widgets/time_picker_button.dart';
 import 'package:flutter_dtr_app/widgets/typography.dart';
@@ -12,6 +14,8 @@ Column buildTimeScheduleConfiguration({
   required String endTimeLabel,
   required TimeOfDay endTimeSchedule,
   required Function(TimeOfDay start, TimeOfDay end) onSave,
+  required String timeFormat,
+  required bool use24HourFormat,
 }) {
   int totalHours = endTimeSchedule.hour - startTimeShedule.hour;
   totalHours = totalHours < 0 ? totalHours + 24 : totalHours;
@@ -22,14 +26,21 @@ Column buildTimeScheduleConfiguration({
       buildTitleText(mainLabel),
       TextButton(
         onPressed: () async {
-          await _configureTimeScheduleDialog(context, startTimeShedule,
-              endTimeSchedule, startTimeLabel, endTimeLabel, onSave);
+          await _configureTimeScheduleDialog(
+            context,
+            startTimeShedule,
+            endTimeSchedule,
+            startTimeLabel,
+            endTimeLabel,
+            onSave,
+            timeFormat,
+            use24HourFormat,
+          );
         },
         style: TextButton.styleFrom(
             backgroundColor: palette['inputs'],
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10))),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
         child: Row(
           children: [
             Icon(
@@ -42,11 +53,10 @@ Column buildTimeScheduleConfiguration({
             ),
             Expanded(
                 child: buildRegularText(
-              '${startTimeShedule.format(context)} - ${endTimeSchedule.format(context)}',
+              '${startTimeShedule.formatToString(format: timeFormat)} - ${endTimeSchedule.formatToString(format: timeFormat)}',
               fontSize: 16,
             )),
-            buildRegularText('${totalHours}hr${totalHours > 1 ? 's' : ''}',
-                fontSize: 16),
+            buildRegularText('${totalHours}hr${totalHours > 1 ? 's' : ''}', fontSize: 16),
           ],
         ),
       )
@@ -55,12 +65,15 @@ Column buildTimeScheduleConfiguration({
 }
 
 Future<void> _configureTimeScheduleDialog(
-    BuildContext context,
-    TimeOfDay startTimeShedule,
-    TimeOfDay endTimeSchedule,
-    String startTimeLabel,
-    String endTimeLabel,
-    Function(TimeOfDay start, TimeOfDay end) onSave) async {
+  BuildContext context,
+  TimeOfDay startTimeShedule,
+  TimeOfDay endTimeSchedule,
+  String startTimeLabel,
+  String endTimeLabel,
+  Function(TimeOfDay start, TimeOfDay end) onSave,
+  String timeFormat,
+  bool use24HourFormat,
+) async {
   final schedule = await showDialog<Map<String, TimeOfDay>>(
     context: context,
     builder: (BuildContext context) {
@@ -77,7 +90,13 @@ Future<void> _configureTimeScheduleDialog(
               children: <Widget>[
                 _scheduleTimePicker(context,
                     label: startTimeLabel,
+                    timeFormat: timeFormat,
+                    use24HourFormat: use24HourFormat,
                     time: startTime, onTimePicked: (TimeOfDay selectedTime) {
+                  if (selectedTime.hour > endTime.hour) {
+                    showSnackBar(context, 'Start time should be before the end time');
+                    return;
+                  }
                   setState(() {
                     startTime = selectedTime;
                   });
@@ -85,8 +104,15 @@ Future<void> _configureTimeScheduleDialog(
                 const SizedBox(
                   height: 20,
                 ),
-                _scheduleTimePicker(context, label: endTimeLabel, time: endTime,
-                    onTimePicked: (TimeOfDay selectedTime) {
+                _scheduleTimePicker(context,
+                    label: endTimeLabel,
+                    timeFormat: timeFormat,
+                    use24HourFormat: use24HourFormat,
+                    time: endTime, onTimePicked: (TimeOfDay selectedTime) {
+                  if (selectedTime.hour < startTime.hour) {
+                    showSnackBar(context, 'End time show be after the start time');
+                    return;
+                  }
                   setState(() {
                     endTime = selectedTime;
                   });
@@ -127,17 +153,26 @@ Future<void> _configureTimeScheduleDialog(
   }
 }
 
-Column _scheduleTimePicker(BuildContext context,
-    {required String label,
-    required TimeOfDay time,
-    required Function(TimeOfDay selectedTime) onTimePicked}) {
+Column _scheduleTimePicker(
+  BuildContext context, {
+  required String label,
+  required TimeOfDay time,
+  required Function(TimeOfDay selectedTime) onTimePicked,
+  required String timeFormat,
+  required bool use24HourFormat,
+}) {
   return Column(
     mainAxisAlignment: MainAxisAlignment.start,
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       buildTitleText(label),
       buildTimePickerButton(
-          context: context, time: time, onTimePicked: onTimePicked)
+        context: context,
+        time: time,
+        onTimePicked: onTimePicked,
+        timeFormat: timeFormat,
+        use24HourFormat: use24HourFormat,
+      )
     ],
   );
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
+import 'package:flutter_dtr_app/data/shared_preferences/sharedpref.dart';
 import 'package:flutter_dtr_app/widgets/back_button.dart';
 import 'package:flutter_dtr_app/widgets/configure_time_schedule.dart';
 import 'package:flutter_dtr_app/widgets/date_picker_button.dart';
@@ -26,6 +28,10 @@ class _AddEntryState extends State<AddEntry> {
   late TimeOfDay _breakTimeEnd = const TimeOfDay(hour: 13, minute: 0);
 
   String _notes = '';
+
+  final String _dateFormat = SharedPref.getDateFormat();
+  final String _timeFormat = SharedPref.getTimeFormat();
+  late final bool _use24HourFormat = _timeFormat == militaryHourFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +121,8 @@ class _AddEntryState extends State<AddEntry> {
           _breakTimeEnd = end;
         });
       },
+      timeFormat: _timeFormat,
+      use24HourFormat: _use24HourFormat,
     );
   }
 
@@ -173,6 +181,7 @@ class _AddEntryState extends State<AddEntry> {
                 context: context,
                 date: date,
                 onDatePicked: onDatePicked,
+                dateFormat: _dateFormat,
               ),
             ),
             const SizedBox(
@@ -183,6 +192,8 @@ class _AddEntryState extends State<AddEntry> {
                 context: context,
                 time: time,
                 onTimePicked: onTimePicked,
+                timeFormat: _timeFormat,
+                use24HourFormat: _use24HourFormat,
               ),
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
+import 'package:flutter_dtr_app/data/shared_preferences/sharedpref.dart';
 import 'package:flutter_dtr_app/widgets/data_overview_container.dart';
 import 'package:flutter_dtr_app/widgets/date_picker_button.dart';
 import 'package:flutter_dtr_app/widgets/text_button.dart';
@@ -21,6 +22,8 @@ class _ReportScreenState extends State<ReportScreen> {
 
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now();
+
+  String _dateFormat = SharedPref.getDateFormat();
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +82,7 @@ class _ReportScreenState extends State<ReportScreen> {
                       _startDate = selectedDate;
                     });
                   },
+                  dateFormat: _dateFormat,
                 ),
               ],
             ),
@@ -100,6 +104,7 @@ class _ReportScreenState extends State<ReportScreen> {
                       _endDate = selectedDate;
                     });
                   },
+                  dateFormat: _dateFormat,
                 ),
               ],
             ),

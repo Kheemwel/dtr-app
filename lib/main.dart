@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
+import 'package:flutter_dtr_app/data/shared_preferences/sharedpref.dart';
 import 'package:flutter_dtr_app/splash_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize shared preferences
+  SharedPref.init();
+
   runApp(const MyApp());
 }
 

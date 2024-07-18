@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dtr_app/core/api/timeofday_api.dart';
 import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
+import 'package:flutter_dtr_app/core/utilities/string_to_timeofday.dart';
+import 'package:flutter_dtr_app/data/shared_preferences/sharedpref.dart';
 import 'package:flutter_dtr_app/widgets/configure_time_schedule.dart';
+import 'package:flutter_dtr_app/widgets/show_snackbar.dart';
 import 'package:flutter_dtr_app/widgets/text_button.dart';
 import 'package:flutter_dtr_app/widgets/typography.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -14,13 +18,15 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String? _selectedDateFormat;
-  String? _selectedTimeFormat;
+  String _selectedDateFormat = SharedPref.getDateFormat();
+  String _selectedTimeFormat = SharedPref.getTimeFormat();
 
-  late TimeOfDay _scheduleStart = const TimeOfDay(hour: 8, minute: 0);
-  late TimeOfDay _scheduleEnd = const TimeOfDay(hour: 17, minute: 0);
-  late TimeOfDay _breakTimeStart = const TimeOfDay(hour: 12, minute: 0);
-  late TimeOfDay _breakTimeEnd = const TimeOfDay(hour: 13, minute: 0);
+  late bool _use24HourFormat = _selectedTimeFormat == militaryHourFormat;
+
+  TimeOfDay _scheduleStart = parseTimeOfDay(SharedPref.getDailyScheduleStart())!;
+  TimeOfDay _scheduleEnd = parseTimeOfDay(SharedPref.getDailyScheduleEnd())!;
+  TimeOfDay _breakTimeStart = parseTimeOfDay(SharedPref.getBreakTimeStart())!;
+  TimeOfDay _breakTimeEnd = parseTimeOfDay(SharedPref.getBreakTimeEnd())!;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +38,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           items: dateFormats,
           value: _selectedDateFormat,
           onSelected: (selected) => setState(() {
-            _selectedDateFormat = selected;
+            _selectedDateFormat = selected!;
+            SharedPref.setDateFormat(_selectedDateFormat);
           }),
         ),
         const SizedBox(
@@ -43,7 +50,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           items: timeFormats,
           value: _selectedTimeFormat,
           onSelected: (selected) => setState(() {
-            _selectedTimeFormat = selected;
+            _selectedTimeFormat = selected!;
+            _use24HourFormat = _selectedTimeFormat == militaryHourFormat;
+            SharedPref.setTimeFormat(_selectedTimeFormat);
           }),
         ),
         const SizedBox(
@@ -70,34 +79,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Column _configureDailySchedule(BuildContext context) {
     return buildTimeScheduleConfiguration(
-        context: context,
-        mainLabel: 'Daily Schedule',
-        startTimeLabel: 'Daily Schedule Start',
-        startTimeShedule: _scheduleStart,
-        endTimeLabel: 'Daily Schedule End',
-        endTimeSchedule: _scheduleEnd,
-        onSave: (start, end) {
-          setState(() {
-            _scheduleStart = start;
-            _scheduleEnd = end;
-          });
+      context: context,
+      mainLabel: 'Daily Schedule',
+      startTimeLabel: 'Daily Schedule Start',
+      startTimeShedule: _scheduleStart,
+      endTimeLabel: 'Daily Schedule End',
+      endTimeSchedule: _scheduleEnd,
+      onSave: (start, end) {
+        if (start.hour > _breakTimeStart.hour) {
+          showSnackBar(
+              context, 'The start of daily schedule should be before the start of break time');
+          return;
+        }
+        if (end.hour < _breakTimeEnd.hour) {
+          showSnackBar(context, 'The end of daily schedule should be after the end of break time');
+          return;
+        }
+        setState(() {
+          _scheduleStart = start;
+          _scheduleEnd = end;
+
+          SharedPref.setDailyScheduleStart(_scheduleStart.formatToString());
+          SharedPref.setDailyScheduleEnd(_scheduleEnd.formatToString());
         });
+      },
+      timeFormat: _selectedTimeFormat,
+      use24HourFormat: _use24HourFormat,
+    );
   }
 
   Column _configureBreakTimeSchedule(BuildContext context) {
     return buildTimeScheduleConfiguration(
-        context: context,
-        mainLabel: 'Break Time Schedule',
-        startTimeLabel: 'Break Time Start',
-        startTimeShedule: _breakTimeStart,
-        endTimeLabel: 'Break Time End',
-        endTimeSchedule: _breakTimeEnd,
-        onSave: (start, end) {
-          setState(() {
-            _breakTimeStart = start;
-            _breakTimeEnd = end;
-          });
+      context: context,
+      mainLabel: 'Break Time Schedule',
+      startTimeLabel: 'Break Time Start',
+      startTimeShedule: _breakTimeStart,
+      endTimeLabel: 'Break Time End',
+      endTimeSchedule: _breakTimeEnd,
+      onSave: (start, end) {
+        if (start.hour < _scheduleStart.hour) {
+          showSnackBar(
+              context, 'The start of break time should be after the start of daily schedule');
+          return;
+        }
+
+        if (end.hour > _scheduleEnd.hour) {
+          showSnackBar(context, 'The end of break time should be before the end of daily schedule');
+          return;
+        }
+        setState(() {
+          _breakTimeStart = start;
+          _breakTimeEnd = end;
+
+          SharedPref.setBreakTimeStart(_breakTimeStart.formatToString());
+          SharedPref.setBreakTimeEnd(_breakTimeEnd.formatToString());
         });
+      },
+      timeFormat: _selectedTimeFormat,
+      use24HourFormat: _use24HourFormat,
+    );
   }
 
   Column _formatSelection(
@@ -106,16 +146,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       required String? value,
       required Function(String? selected) onSelected}) {
     List<String> itemKeys = items.keys.toList();
-    value = value ?? itemKeys.first;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         buildTitleText(label),
         Container(
-          decoration: BoxDecoration(
-              color: palette['inputs'],
-              borderRadius: BorderRadius.circular(10)),
+          decoration:
+              BoxDecoration(color: palette['inputs'], borderRadius: BorderRadius.circular(10)),
           child: DropdownMenu<String>(
             expandedInsets: EdgeInsets.zero,
             trailingIcon: Icon(
@@ -129,19 +167,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               color: palette['icons'],
               size: 16,
             ),
-            textStyle:
-                Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16),
+            textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16),
             inputDecorationTheme: const InputDecorationTheme(
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
             ),
-            initialSelection: itemKeys.first,
+            initialSelection: value,
             requestFocusOnTap: false,
             onSelected: (String? selectedItem) {
               onSelected(selectedItem);
             },
-            dropdownMenuEntries:
-                itemKeys.map<DropdownMenuEntry<String>>((String val) {
+            dropdownMenuEntries: itemKeys.map<DropdownMenuEntry<String>>((String val) {
               return DropdownMenuEntry<String>(
                 value: val,
                 label: items[val]!,
@@ -163,8 +199,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 labelWidget: ConstrainedBox(
-                  constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width - 100),
+                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 100),
                   child: buildRegularText(items[val]!,
                       fontSize: 14, color: value == val ? Colors.white : null),
                 ),
@@ -183,8 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
             backgroundColor: palette['danger'],
             foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10))),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
         child: Row(
           children: [
             Expanded(child: buildTitleText('Clear All Data')),
@@ -212,10 +246,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(
                 height: 10,
               ),
-              buildRegularText(
-                  'Are you sure you want to clear all the data of the application?',
-                  fontSize: 16,
-                  isCentered: true),
+              buildRegularText('Are you sure you want to clear all the data of the application?',
+                  fontSize: 16, isCentered: true),
               const SizedBox(
                 height: 30,
               ),

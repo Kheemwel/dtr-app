@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dtr_app/core/api/timeofday_api.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
 import 'package:flutter_dtr_app/widgets/time_picker_dialog.dart';
 import 'package:flutter_dtr_app/widgets/typography.dart';
 
-TextButton buildTimePickerButton(
-    {required BuildContext context,
-    required TimeOfDay time,
-    required Function(TimeOfDay selectedTime) onTimePicked}) {
+TextButton buildTimePickerButton({
+  required BuildContext context,
+  required TimeOfDay time,
+  required Function(TimeOfDay selectedTime) onTimePicked,
+  required String timeFormat,
+  required bool use24HourFormat,
+}) {
   return TextButton(
     onPressed: () async {
-      final TimeOfDay? pickedTime =
-          await showTimePickerDialog(context: context, initialTime: time);
+      final TimeOfDay? pickedTime = await showTimePickerDialog(
+        context: context,
+        initialTime: time,
+        use24HourFormat: use24HourFormat,
+      );
       if (pickedTime != null) {
         onTimePicked(pickedTime);
       }
@@ -29,7 +36,9 @@ TextButton buildTimePickerButton(
         const SizedBox(
           width: 10,
         ),
-        Expanded(child: buildRegularText(time.format(context), fontSize: 16)),
+        Expanded(
+            child: buildRegularText(time.formatToString(format: timeFormat),
+                fontSize: 16)),
       ],
     ),
   );

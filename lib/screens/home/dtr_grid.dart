@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/widgets/bordered_container.dart';
 import 'package:flutter_dtr_app/widgets/dtr_cell.dart';
-import 'package:flutter_dtr_app/database/json_serialization.dart';
+import 'package:flutter_dtr_app/data/database/json_serialization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../database/dtr_day.dart';
+import '../../data/database/dtr_day.dart';
 
 class DTRGrid extends StatefulWidget {
   const DTRGrid({super.key});

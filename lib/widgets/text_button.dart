@@ -10,13 +10,13 @@ TextButton buildTextButtonSmall(String text,
         backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
           if (states.contains(WidgetState.pressed)) {
             return inverted
-                ? palette['tertiary-variant']!
+                ? palette['tertiaryVariant']!
                 : palette['tertiary']!;
           }
 
           if (states.contains(WidgetState.hovered)) {
             return inverted
-                ? palette['tertiary-variant']!
+                ? palette['tertiaryVariant']!
                 : palette['tertiary']!;
           }
 
