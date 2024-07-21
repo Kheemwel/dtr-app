@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dtr_app/core/api/double_api.dart';
 import 'package:flutter_dtr_app/core/api/timeofday_api.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
+import 'package:flutter_dtr_app/core/utilities/calculate_total_hours.dart';
 import 'package:flutter_dtr_app/widgets/show_snackbar.dart';
 import 'package:flutter_dtr_app/widgets/text_button.dart';
 import 'package:flutter_dtr_app/widgets/time_picker_button.dart';
@@ -17,8 +19,7 @@ Column buildTimeScheduleConfiguration({
   required String timeFormat,
   required bool use24HourFormat,
 }) {
-  int totalHours = endTimeSchedule.hour - startTimeShedule.hour;
-  totalHours = totalHours < 0 ? totalHours + 24 : totalHours;
+  final double totalHours = calculateTotalHours(start: startTimeShedule, end: endTimeSchedule);
   return Column(
     mainAxisAlignment: MainAxisAlignment.start,
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,7 +57,8 @@ Column buildTimeScheduleConfiguration({
               '${startTimeShedule.formatToString(format: timeFormat)} - ${endTimeSchedule.formatToString(format: timeFormat)}',
               fontSize: 16,
             )),
-            buildRegularText('${totalHours}hr${totalHours > 1 ? 's' : ''}', fontSize: 16),
+            buildRegularText('${totalHours.formatToString()}hr${totalHours > 1 ? 's' : ''}',
+                fontSize: 16),
           ],
         ),
       )
@@ -93,10 +95,11 @@ Future<void> _configureTimeScheduleDialog(
                     timeFormat: timeFormat,
                     use24HourFormat: use24HourFormat,
                     time: startTime, onTimePicked: (TimeOfDay selectedTime) {
-                  if (selectedTime.hour > endTime.hour) {
-                    showSnackBar(context, 'Start time should be before the end time');
+                  if (selectedTime == endTime) {
+                    showSnackBar(context, 'The start and end time should not be the same');
                     return;
                   }
+
                   setState(() {
                     startTime = selectedTime;
                   });
@@ -109,10 +112,11 @@ Future<void> _configureTimeScheduleDialog(
                     timeFormat: timeFormat,
                     use24HourFormat: use24HourFormat,
                     time: endTime, onTimePicked: (TimeOfDay selectedTime) {
-                  if (selectedTime.hour < startTime.hour) {
-                    showSnackBar(context, 'End time show be after the start time');
+                  if (selectedTime == startTime) {
+                    showSnackBar(context, 'The start and end time should not be the same');
                     return;
                   }
+
                   setState(() {
                     endTime = selectedTime;
                   });

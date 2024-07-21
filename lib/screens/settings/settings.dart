@@ -3,10 +3,10 @@ import 'package:flutter_dtr_app/core/api/timeofday_api.dart';
 import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
 import 'package:flutter_dtr_app/core/utilities/string_to_timeofday.dart';
+import 'package:flutter_dtr_app/data/models/daily_time_records_model.dart';
 import 'package:flutter_dtr_app/data/shared_preferences/sharedpref.dart';
 import 'package:flutter_dtr_app/widgets/configure_time_schedule.dart';
-import 'package:flutter_dtr_app/widgets/show_snackbar.dart';
-import 'package:flutter_dtr_app/widgets/text_button.dart';
+import 'package:flutter_dtr_app/widgets/confirmation_dialog.dart';
 import 'package:flutter_dtr_app/widgets/typography.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -18,15 +18,35 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _selectedDateFormat = SharedPref.getDateFormat();
-  String _selectedTimeFormat = SharedPref.getTimeFormat();
+  late String _selectedDateFormat;
+  late String _selectedTimeFormat;
 
-  late bool _use24HourFormat = _selectedTimeFormat == militaryHourFormat;
+  late bool _use24HourFormat;
 
-  TimeOfDay _scheduleStart = parseTimeOfDay(SharedPref.getDailyScheduleStart())!;
-  TimeOfDay _scheduleEnd = parseTimeOfDay(SharedPref.getDailyScheduleEnd())!;
-  TimeOfDay _breakTimeStart = parseTimeOfDay(SharedPref.getBreakTimeStart())!;
-  TimeOfDay _breakTimeEnd = parseTimeOfDay(SharedPref.getBreakTimeEnd())!;
+  late TimeOfDay _scheduleStart;
+  late TimeOfDay _scheduleEnd;
+  late TimeOfDay _breakTimeStart;
+  late TimeOfDay _breakTimeEnd;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSharedPref();
+  }
+
+  void _loadSharedPref() {
+    setState(() {
+      _selectedDateFormat = SharedPref.getDateFormat();
+      _selectedTimeFormat = SharedPref.getTimeFormat();
+
+      _use24HourFormat = _selectedTimeFormat == militaryHourFormat;
+
+      _scheduleStart = parseTimeOfDay(SharedPref.getDailyScheduleStart())!;
+      _scheduleEnd = parseTimeOfDay(SharedPref.getDailyScheduleEnd())!;
+      _breakTimeStart = parseTimeOfDay(SharedPref.getBreakTimeStart())!;
+      _breakTimeEnd = parseTimeOfDay(SharedPref.getBreakTimeEnd())!;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,15 +106,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       endTimeLabel: 'Daily Schedule End',
       endTimeSchedule: _scheduleEnd,
       onSave: (start, end) {
-        if (start.hour > _breakTimeStart.hour) {
-          showSnackBar(
-              context, 'The start of daily schedule should be before the start of break time');
-          return;
-        }
-        if (end.hour < _breakTimeEnd.hour) {
-          showSnackBar(context, 'The end of daily schedule should be after the end of break time');
-          return;
-        }
         setState(() {
           _scheduleStart = start;
           _scheduleEnd = end;
@@ -117,16 +128,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       endTimeLabel: 'Break Time End',
       endTimeSchedule: _breakTimeEnd,
       onSave: (start, end) {
-        if (start.hour < _scheduleStart.hour) {
-          showSnackBar(
-              context, 'The start of break time should be after the start of daily schedule');
-          return;
-        }
-
-        if (end.hour > _scheduleEnd.hour) {
-          showSnackBar(context, 'The end of break time should be before the end of daily schedule');
-          return;
-        }
         setState(() {
           _breakTimeStart = start;
           _breakTimeEnd = end;
@@ -213,7 +214,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   TextButton _clearAllDataButton() {
     return TextButton(
-        onPressed: () => _confirmationDialog(),
+        onPressed: () {
+          showConfirmationDialog(
+              context: context,
+              title: 'Clear All Data',
+              message: 'Are you sure you want to clear all the data of the application?',
+              negativeText: 'No',
+              onNegative: () {
+                Navigator.pop(context);
+              },
+              positiveText: 'Yes',
+              onPositive: () async {
+                final DailyTimeRecordsModel dailyTimeRecordsModel = DailyTimeRecordsModel();
+                await SharedPref.clearAll();
+                await dailyTimeRecordsModel.dailyTimeRecordsDao?.deleteAllRecords();
+                await dailyTimeRecordsModel.update();
+
+                _loadSharedPref();
+
+                if (!mounted) return;
+                Navigator.pop(context);
+              });
+        },
         style: TextButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
             backgroundColor: palette['danger'],
@@ -229,49 +251,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
             )
           ],
         ));
-  }
-
-  Future<String?> _confirmationDialog() {
-    return showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => Dialog(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              buildHeading3Text('Clear All Data'),
-              const SizedBox(
-                height: 10,
-              ),
-              buildRegularText('Are you sure you want to clear all the data of the application?',
-                  fontSize: 16, isCentered: true),
-              const SizedBox(
-                height: 30,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: buildTextButtonSmall('No', onPressed: () {
-                      Navigator.pop(context);
-                    }, inverted: true),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Expanded(
-                    child: buildTextButtonSmall('Yes', onPressed: () {
-                      Navigator.pop(context);
-                    }),
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

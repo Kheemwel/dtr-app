@@ -71,4 +71,9 @@ class SharedPref {
   static String getBreakTimeEnd() {
     return _prefs.getString('breakTimeEnd') ?? '13:00';
   }
+
+  /// Clear all data from SharedPreferences
+  static Future<void> clearAll() async {
+    await _prefs.clear();
+  }
 }

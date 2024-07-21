@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dtr_app/core/api/datetime_api.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
+import 'package:flutter_dtr_app/data/models/daily_time_records_model.dart';
 import 'package:flutter_dtr_app/screens/home/add_entry.dart';
 import 'package:flutter_dtr_app/widgets/calendar_popup_menu_item.dart';
 import 'package:flutter_dtr_app/widgets/typography.dart';
@@ -42,6 +44,8 @@ class _CalendarViewState extends State<CalendarView> {
   final int _minimumYear = 2000;
   final int _maximumYear = DateTime.now().year;
 
+  final DailyTimeRecordsModel _dailyTimeRecordsModel = DailyTimeRecordsModel();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -58,8 +62,7 @@ class _CalendarViewState extends State<CalendarView> {
           children: List.generate(
               7,
               (index) => Expanded(
-                    child: Center(
-                        child: buildTitleText(_weeks[index], fontsize: 12)),
+                    child: Center(child: buildTitleText(_weeks[index], fontsize: 12)),
                   )),
         ),
         const SizedBox(
@@ -67,7 +70,12 @@ class _CalendarViewState extends State<CalendarView> {
         ),
         SizedBox(
           height: 500,
-          child: _buildCalendarGrid(),
+          child: ValueListenableBuilder<List<String>>(
+            valueListenable: _dailyTimeRecordsModel.existingDatesNotifier,
+            builder: (context, existingDates, child) {
+              return _buildCalendarGrid();
+            },
+          ),
         ),
       ],
     );
@@ -85,8 +93,7 @@ class _CalendarViewState extends State<CalendarView> {
             initialValue: _months[_currentDate.month - 1],
             onSelected: (String month) {
               setState(() {
-                _currentDate =
-                    DateTime(_selectedYear, _months.indexOf(month) + 1, 1);
+                _currentDate = DateTime(_selectedYear, _months.indexOf(month) + 1, 1);
               });
             },
             itemBuilder: (BuildContext context) => List.generate(
@@ -111,10 +118,9 @@ class _CalendarViewState extends State<CalendarView> {
               });
             },
             itemBuilder: (BuildContext context) => List.generate(
-                    _maximumYear - _minimumYear + 1,
-                    (index) => _minimumYear + index)
-                .map((year) => CalendarPopupMenuItem(
-                    value: year, isSelected: year == _selectedYear))
+                    _maximumYear - _minimumYear + 1, (index) => _minimumYear + index)
+                .map(
+                    (year) => CalendarPopupMenuItem(value: year, isSelected: year == _selectedYear))
                 .toList(),
             child: buildHeading3Text(_selectedYear.toString())),
         const Spacer(),
@@ -160,8 +166,7 @@ class _CalendarViewState extends State<CalendarView> {
     // Get the day of the first day of a month
     // Ex: July 1, 2024 would result to 1 and then add 1 to make it 2
     // The Sunday will be the first day of the week so it would be 1
-    final firstDayOfMonthWeekday =
-        _currentDate.weekday == 7 ? 1 : _currentDate.weekday + 1;
+    final firstDayOfMonthWeekday = _currentDate.weekday == 7 ? 1 : _currentDate.weekday + 1;
 
     // Get the total days in a month
     final daysInMonth = DateTime(_selectedYear, _currentDate.month + 1, 0).day;
@@ -182,40 +187,45 @@ class _CalendarViewState extends State<CalendarView> {
           final previousMonth = DateTime(_selectedYear, _currentDate.month, 0);
           final previousMonthDays = previousMonth.day;
           day = previousMonthDays - (firstDayOfMonthWeekday - 2 - index);
-          return _buildDayCell(DateTime(_selectedYear, _currentDate.month, day),
+          return _buildDayCell(DateTime(_selectedYear, _currentDate.month - 1, day),
               isPreviousMonth: true);
         } else if (index >= firstDayOfMonthWeekday - 1 + daysInMonth) {
           // Next month's day
           day = index - (firstDayOfMonthWeekday - 2 + daysInMonth);
-          return _buildDayCell(DateTime(_selectedYear, _currentDate.month, day),
+          return _buildDayCell(DateTime(_selectedYear, _currentDate.month + 1, day),
               isNextMonth: true);
         } else {
           // Current month's day
           day = index - (firstDayOfMonthWeekday - 2);
-          return _buildDayCell(
-              DateTime(_selectedYear, _currentDate.month, day));
+          return _buildDayCell(DateTime(_selectedYear, _currentDate.month, day));
         }
       }),
     );
   }
 
-  Widget _buildDayCell(DateTime date,
-      {bool isPreviousMonth = false, bool isNextMonth = false}) {
+  Widget _buildDayCell(DateTime date, {bool isPreviousMonth = false, bool isNextMonth = false}) {
     // Customize the text color based on the month
     final dateToday = DateTime.now();
-    final bool isCurrentDate = date.isAtSameMomentAs(
-        DateTime(dateToday.year, dateToday.month, dateToday.day));
+    final bool isCurrentDate =
+        date.isAtSameMomentAs(DateTime(dateToday.year, dateToday.month, dateToday.day));
+    final bool isFuture = date.isAfter(DateTime(dateToday.year, dateToday.month, dateToday.day));
+    final List<String> existingDates = _dailyTimeRecordsModel.existingDatesNotifier.value;
+    final bool isInRecord = existingDates.contains(date.formatToString());
+
     Color? textColor;
     if (isPreviousMonth || isNextMonth) {
       textColor = palette['faded'];
-    } else if (isCurrentDate) {
-      textColor = palette['dark'];
-    } else {
+    } else if (isInRecord && !isCurrentDate) {
       textColor = Colors.white;
+    } else {
+      textColor = palette['dark'];
     }
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        if (isFuture) {
+          return;
+        }
+        await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => AddEntry(date: date),
@@ -227,16 +237,13 @@ class _CalendarViewState extends State<CalendarView> {
             height: 50,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              border: isCurrentDate
-                  ? Border.all(color: palette['secondary']!, width: 3)
-                  : null,
+              border: isCurrentDate ? Border.all(color: palette['secondary']!, width: 3) : null,
               borderRadius: BorderRadius.circular(180),
-              color: !isPreviousMonth && !isNextMonth && !isCurrentDate
+              color: isInRecord && !isCurrentDate && !(isPreviousMonth || isNextMonth)
                   ? palette['primary']
                   : null,
             ),
-            child: buildRegularText(date.day.toString(),
-                color: textColor, fontSize: 18)),
+            child: buildRegularText(date.day.toString(), color: textColor, fontSize: 18)),
       ),
     );
   }

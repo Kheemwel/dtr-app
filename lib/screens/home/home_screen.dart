@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dtr_app/core/api/double_api.dart';
 import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
+import 'package:flutter_dtr_app/data/models/daily_time_records_model.dart';
 import 'package:flutter_dtr_app/screens/home/add_entry.dart';
 import 'package:flutter_dtr_app/screens/home/calendar_view.dart';
 import 'package:flutter_dtr_app/widgets/data_overview_container.dart';
@@ -14,6 +16,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final DailyTimeRecordsModel _dailyTimeRecordsModel = DailyTimeRecordsModel();
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -25,15 +29,20 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(
               height: 40,
             ),
-            const CalendarView(),
+            ValueListenableBuilder(
+              valueListenable: _dailyTimeRecordsModel.existingDatesNotifier,
+              builder: (context, value, child) {
+                return const CalendarView();
+              },
+            ),
           ],
         ),
         Positioned(
             bottom: 40,
             right: 30,
             child: FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => AddEntry(
@@ -57,28 +66,36 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-            child: buildDataOverviewContainer(
+            child: ValueListenableBuilder(
+          valueListenable: _dailyTimeRecordsModel.existingDatesNotifier,
+          builder: (context, dates, child) {
+            return buildDataOverviewContainer(
                 icon: SvgPicture.asset(
                   iconCalendar,
                   width: 26,
                   height: 26,
-                  colorFilter:
-                      ColorFilter.mode(palette['icons']!, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(palette['icons']!, BlendMode.srcIn),
                 ),
-                title: '34',
-                subtitle: 'Total Days Worked')),
+                title: dates.length.toString(),
+                subtitle: 'Total Days Worked');
+          },
+        )),
         const SizedBox(
           width: 20,
         ),
         Expanded(
-            child: buildDataOverviewContainer(
-                icon: Icon(
-                  Icons.schedule,
-                  size: 26,
-                  color: palette['icons'],
-                ),
-                title: '400',
-                subtitle: 'Total Hours')),
+            child: ValueListenableBuilder(
+                valueListenable: _dailyTimeRecordsModel.totalHoursNotifier,
+                builder: (context, hours, child) {
+                  return buildDataOverviewContainer(
+                      icon: Icon(
+                        Icons.schedule,
+                        size: 26,
+                        color: palette['icons'],
+                      ),
+                      title: hours.formatToString(),
+                      subtitle: 'Total Hours');
+                })),
       ],
     );
   }
