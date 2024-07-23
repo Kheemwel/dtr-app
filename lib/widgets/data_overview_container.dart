@@ -21,7 +21,14 @@ Container buildDataOverviewContainer(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildHeading2Text(title),
+            SizedBox(
+              width: 100,
+              height: 32,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: buildHeading2Text(title),
+              ),
+            ),
             buildRegularText(subtitle),
           ],
         )

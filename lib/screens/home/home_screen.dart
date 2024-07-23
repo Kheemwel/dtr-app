@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dtr_app/core/api/double_api.dart';
 import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
+import 'package:flutter_dtr_app/core/utilities/double_to_time.dart';
 import 'package:flutter_dtr_app/data/models/daily_time_records_model.dart';
 import 'package:flutter_dtr_app/screens/home/add_entry.dart';
 import 'package:flutter_dtr_app/screens/home/calendar_view.dart';
@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         size: 26,
                         color: palette['icons'],
                       ),
-                      title: hours.formatToString(),
+                      title: hours == 0 ? '0' : convertDoubleToTime(hours),
                       subtitle: 'Total Hours');
                 })),
       ],

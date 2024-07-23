@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dtr_app/core/api/double_api.dart';
 import 'package:flutter_dtr_app/core/api/timeofday_api.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
 import 'package:flutter_dtr_app/core/utilities/calculate_total_hours.dart';
+import 'package:flutter_dtr_app/core/utilities/double_to_time.dart';
 import 'package:flutter_dtr_app/widgets/show_snackbar.dart';
 import 'package:flutter_dtr_app/widgets/text_button.dart';
 import 'package:flutter_dtr_app/widgets/time_picker_button.dart';
@@ -57,8 +57,7 @@ Column buildTimeScheduleConfiguration({
               '${startTimeShedule.formatToString(format: timeFormat)} - ${endTimeSchedule.formatToString(format: timeFormat)}',
               fontSize: 16,
             )),
-            buildRegularText('${totalHours.formatToString()}hr${totalHours > 1 ? 's' : ''}',
-                fontSize: 16),
+            buildRegularText(convertDoubleToTime(totalHours), fontSize: 16),
           ],
         ),
       )
