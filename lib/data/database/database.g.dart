@@ -21,14 +21,12 @@ abstract class $AppDatabaseBuilderContract {
 class $FloorAppDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static $AppDatabaseBuilderContract databaseBuilder(String name) =>
-      _$AppDatabaseBuilder(name);
+  static $AppDatabaseBuilderContract databaseBuilder(String name) => _$AppDatabaseBuilder(name);
 
   /// Creates a database builder for an in memory database.
   /// Information stored in an in memory database disappears when the process is killed.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static $AppDatabaseBuilderContract inMemoryDatabaseBuilder() =>
-      _$AppDatabaseBuilder(null);
+  static $AppDatabaseBuilderContract inMemoryDatabaseBuilder() => _$AppDatabaseBuilder(null);
 }
 
 class _$AppDatabaseBuilder implements $AppDatabaseBuilderContract {
@@ -54,9 +52,7 @@ class _$AppDatabaseBuilder implements $AppDatabaseBuilderContract {
 
   @override
   Future<AppDatabase> build() async {
-    final path = name != null
-        ? await sqfliteDatabaseFactory.getDatabasePath(name!)
-        : ':memory:';
+    final path = name != null ? await sqfliteDatabaseFactory.getDatabasePath(name!) : ':memory:';
     final database = _$AppDatabase();
     database.database = await database.open(
       path,
@@ -89,14 +85,13 @@ class _$AppDatabase extends AppDatabase {
         await callback?.onOpen?.call(database);
       },
       onUpgrade: (database, startVersion, endVersion) async {
-        await MigrationAdapter.runMigrations(
-            database, startVersion, endVersion, migrations);
+        await MigrationAdapter.runMigrations(database, startVersion, endVersion, migrations);
 
         await callback?.onUpgrade?.call(database, startVersion, endVersion);
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `DailyTimeRecords` (`dateStart` TEXT NOT NULL, `dateEnd` TEXT NOT NULL, `startTime` TEXT NOT NULL, `endTime` TEXT NOT NULL, `breakTimeStart` TEXT NOT NULL, `breakTimeEnd` TEXT NOT NULL, `notes` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT, `createTime` TEXT NOT NULL, `updateTime` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `DailyTimeRecords` (`dateStart` TEXT NOT NULL, `dateEnd` TEXT NOT NULL, `startTime` TEXT NOT NULL, `endTime` TEXT NOT NULL, `breakTimeStart` TEXT NOT NULL, `breakTimeEnd` TEXT NOT NULL, `notes` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT, `createdAt` TEXT NOT NULL, `updatedAt` TEXT NOT NULL)');
         await database.execute(
             'CREATE UNIQUE INDEX `index_DailyTimeRecords_dateStart` ON `DailyTimeRecords` (`dateStart`)');
 
@@ -108,8 +103,7 @@ class _$AppDatabase extends AppDatabase {
 
   @override
   DailyTimeRecordsDao get dailyTimeRecordsDao {
-    return _dailyTimeRecordsDaoInstance ??=
-        _$DailyTimeRecordsDao(database, changeListener);
+    return _dailyTimeRecordsDaoInstance ??= _$DailyTimeRecordsDao(database, changeListener);
   }
 }
 
@@ -130,8 +124,8 @@ class _$DailyTimeRecordsDao extends DailyTimeRecordsDao {
                   'breakTimeEnd': item.breakTimeEnd,
                   'notes': item.notes,
                   'id': item.id,
-                  'createTime': item.createTime,
-                  'updateTime': item.updateTime
+                  'createdAt': item.createdAt,
+                  'updatedAt': item.updatedAt
                 }),
         _dailyTimeRecordUpdateAdapter = UpdateAdapter(
             database,
@@ -146,8 +140,8 @@ class _$DailyTimeRecordsDao extends DailyTimeRecordsDao {
                   'breakTimeEnd': item.breakTimeEnd,
                   'notes': item.notes,
                   'id': item.id,
-                  'createTime': item.createTime,
-                  'updateTime': item.updateTime
+                  'createdAt': item.createdAt,
+                  'updatedAt': item.updatedAt
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -172,8 +166,8 @@ class _$DailyTimeRecordsDao extends DailyTimeRecordsDao {
             breakTimeStart: row['breakTimeStart'] as String,
             breakTimeEnd: row['breakTimeEnd'] as String,
             notes: row['notes'] as String,
-            updateTime: row['updateTime'] as String?,
-            createTime: row['createTime'] as String?));
+            createdAt: row['createdAt'] as String?,
+            updatedAt: row['updatedAt'] as String?));
   }
 
   @override
@@ -194,15 +188,14 @@ class _$DailyTimeRecordsDao extends DailyTimeRecordsDao {
             breakTimeStart: row['breakTimeStart'] as String,
             breakTimeEnd: row['breakTimeEnd'] as String,
             notes: row['notes'] as String,
-            updateTime: row['updateTime'] as String?,
-            createTime: row['createTime'] as String?),
+            createdAt: row['createdAt'] as String?,
+            updatedAt: row['updatedAt'] as String?),
         arguments: [id]);
   }
 
   @override
   Future<DailyTimeRecord?> findRecordByDate(String date) async {
-    return _queryAdapter.query(
-        'SELECT * FROM DailyTimeRecords WHERE dateStart = ?1',
+    return _queryAdapter.query('SELECT * FROM DailyTimeRecords WHERE dateStart = ?1',
         mapper: (Map<String, Object?> row) => DailyTimeRecord(
             id: row['id'] as int?,
             dateStart: row['dateStart'] as String,
@@ -212,8 +205,8 @@ class _$DailyTimeRecordsDao extends DailyTimeRecordsDao {
             breakTimeStart: row['breakTimeStart'] as String,
             breakTimeEnd: row['breakTimeEnd'] as String,
             notes: row['notes'] as String,
-            updateTime: row['updateTime'] as String?,
-            createTime: row['createTime'] as String?),
+            createdAt: row['createdAt'] as String?,
+            updatedAt: row['updatedAt'] as String?),
         arguments: [date]);
   }
 
@@ -233,16 +226,15 @@ class _$DailyTimeRecordsDao extends DailyTimeRecordsDao {
             breakTimeStart: row['breakTimeStart'] as String,
             breakTimeEnd: row['breakTimeEnd'] as String,
             notes: row['notes'] as String,
-            updateTime: row['updateTime'] as String?,
-            createTime: row['createTime'] as String?),
+            createdAt: row['createdAt'] as String?,
+            updatedAt: row['updatedAt'] as String?),
         arguments: [fromDate, toDate]);
   }
 
   @override
   Future<void> deleteRecord(int id) async {
-    await _queryAdapter.queryNoReturn(
-        'DELETE FROM DailyTimeRecords WHERE id = ?1',
-        arguments: [id]);
+    await _queryAdapter
+        .queryNoReturn('DELETE FROM DailyTimeRecords WHERE id = ?1', arguments: [id]);
   }
 
   @override
@@ -258,13 +250,11 @@ class _$DailyTimeRecordsDao extends DailyTimeRecordsDao {
 
   @override
   Future<void> insertRecord(DailyTimeRecord record) async {
-    await _dailyTimeRecordInsertionAdapter.insert(
-        record, OnConflictStrategy.ignore);
+    await _dailyTimeRecordInsertionAdapter.insert(record, OnConflictStrategy.ignore);
   }
 
   @override
   Future<void> updateRecord(DailyTimeRecord record) async {
-    await _dailyTimeRecordUpdateAdapter.update(
-        record, OnConflictStrategy.replace);
+    await _dailyTimeRecordUpdateAdapter.update(record, OnConflictStrategy.replace);
   }
 }

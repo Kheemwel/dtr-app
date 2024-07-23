@@ -5,15 +5,15 @@ class BaseEntity {
   final int? id;
 
   @ColumnInfo(name: 'createTime')
-  final String createTime;
+  final String createdAt;
 
   @ColumnInfo(name: 'updateTime')
-  final String updateTime;
+  final String updatedAt;
 
   BaseEntity({
     this.id,
-    String? createTime,
-    String? updateTime,
-  })  : createTime = createTime ?? DateTime.now().toString(),
-        updateTime = updateTime ?? DateTime.now().toString();
+    String? createdAt,
+    String? updatedAt,
+  })  : createdAt = createdAt ?? DateTime.now().toString(),
+        updatedAt = updatedAt ?? DateTime.now().toString();
 }

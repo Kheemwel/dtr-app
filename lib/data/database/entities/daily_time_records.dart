@@ -25,8 +25,8 @@ class DailyTimeRecord extends BaseEntity {
     required this.breakTimeStart,
     required this.breakTimeEnd,
     required this.notes,
-    super.updateTime,
-    super.createTime,
+    super.createdAt,
+    super.updatedAt,
   });
 
   Map toJson() => {
@@ -37,9 +37,9 @@ class DailyTimeRecord extends BaseEntity {
         'endTime': endTime,
         'breakTimeStart': breakTimeStart,
         'breakTimeEnd': breakTimeEnd,
-        'createTime': createTime,
         'notes': notes,
-        'updateTIme': updateTime,
+        'createdAt': createdAt,
+        'updatedAt': updatedAt,
       };
 
   double getTotalHours() {

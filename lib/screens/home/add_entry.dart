@@ -28,7 +28,7 @@ class AddEntry extends StatefulWidget {
 
 class _AddEntryState extends State<AddEntry> {
   late DateTime _startDate = widget.date;
-  late DateTime _endDate = widget.date.add(const Duration(days: 1));
+  late DateTime _endDate = widget.date;
 
   TimeOfDay _startTime = parseTimeOfDay(SharedPref.getDailyScheduleStart())!;
   TimeOfDay _endTime = parseTimeOfDay(SharedPref.getDailyScheduleEnd())!;
@@ -218,7 +218,7 @@ class _AddEntryState extends State<AddEntry> {
       onDatePicked: (selectedDate) {
         setState(() {
           _startDate = selectedDate;
-          _endDate = selectedDate.add(const Duration(days: 1));
+          _endDate = selectedDate;
         });
       },
       onTimePicked: (selectedTime) {
@@ -326,6 +326,7 @@ class _AddEntryState extends State<AddEntry> {
               endTime: _endTime.formatToString(),
               breakTimeStart: _breakTimeStart.formatToString(),
               breakTimeEnd: _breakTimeEnd.formatToString(),
+              updatedAt: DateTime.now().formatToString(),
               notes: _notes,
             ));
 
