@@ -153,6 +153,12 @@ final popupMenuTheme = PopupMenuThemeData(
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
 );
 
+/// Customized theme for SnackBar
+final snackBarTheme = SnackBarThemeData(
+  backgroundColor: palette['dark'],
+  contentTextStyle: textTheme.bodyMedium!.copyWith(fontSize: 12, color: Colors.white),
+);
+
 /// Customized Theme Data
 final themeData = ThemeData(
   colorScheme: ColorScheme.light(
@@ -172,4 +178,5 @@ final themeData = ThemeData(
   datePickerTheme: datePickerTheme,
   menuTheme: menuTheme,
   popupMenuTheme: popupMenuTheme,
+  snackBarTheme: snackBarTheme,
 );
