@@ -75,80 +75,86 @@ Future<void> _configureTimeScheduleDialog(
   String timeFormat,
   bool use24HourFormat,
 ) async {
+  TimeOfDay startTime = startTimeShedule;
+  TimeOfDay endTime = endTimeSchedule;
   final schedule = await showDialog<Map<String, TimeOfDay>>(
     context: context,
-    builder: (BuildContext context) {
-      TimeOfDay startTime = startTimeShedule;
-      TimeOfDay endTime = endTimeSchedule;
-      return StatefulBuilder(
-        builder: (context, setState) => Dialog(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                _scheduleTimePicker(context,
-                    label: startTimeLabel,
-                    timeFormat: timeFormat,
-                    use24HourFormat: use24HourFormat,
-                    time: startTime, onTimePicked: (TimeOfDay selectedTime) {
-                  if (selectedTime == endTime) {
-                    showSnackBar(context, 'The start and end time should not be the same');
-                    return;
-                  }
+    builder: (BuildContext context) => StatefulBuilder(
+      builder: (_, setState) => ScaffoldMessenger(
+        child: Builder(
+            builder: (context) => Scaffold(
+                  backgroundColor: Colors.transparent,
+                  body: Dialog(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          _scheduleTimePicker(context,
+                              label: startTimeLabel,
+                              timeFormat: timeFormat,
+                              use24HourFormat: use24HourFormat,
+                              time: startTime, onTimePicked: (TimeOfDay selectedTime) {
+                            if (selectedTime == endTime) {
+                              showSnackBar(
+                                  context, 'The start and end time should not be the same');
+                              return;
+                            }
 
-                  setState(() {
-                    startTime = selectedTime;
-                  });
-                }),
-                const SizedBox(
-                  height: 20,
-                ),
-                _scheduleTimePicker(context,
-                    label: endTimeLabel,
-                    timeFormat: timeFormat,
-                    use24HourFormat: use24HourFormat,
-                    time: endTime, onTimePicked: (TimeOfDay selectedTime) {
-                  if (selectedTime == startTime) {
-                    showSnackBar(context, 'The start and end time should not be the same');
-                    return;
-                  }
+                            setState(() {
+                              startTime = selectedTime;
+                            });
+                          }),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          _scheduleTimePicker(context,
+                              label: endTimeLabel,
+                              timeFormat: timeFormat,
+                              use24HourFormat: use24HourFormat,
+                              time: endTime, onTimePicked: (TimeOfDay selectedTime) {
+                            if (selectedTime == startTime) {
+                              showSnackBar(
+                                  context, 'The start and end time should not be the same');
+                              return;
+                            }
 
-                  setState(() {
-                    endTime = selectedTime;
-                  });
-                }),
-                const SizedBox(
-                  height: 30,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: buildTextButtonSmall('Cancel', onPressed: () {
-                        Navigator.pop(context);
-                      }, inverted: true),
+                            setState(() {
+                              endTime = selectedTime;
+                            });
+                          }),
+                          const SizedBox(
+                            height: 30,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: buildTextButtonSmall('Cancel', onPressed: () {
+                                  Navigator.pop(context);
+                                }, inverted: true),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                child: buildTextButtonSmall('Save', onPressed: () {
+                                  Navigator.pop(context, {
+                                    'start': startTime,
+                                    'end': endTime,
+                                  });
+                                }),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: buildTextButtonSmall('Save', onPressed: () {
-                        Navigator.pop(context, {
-                          'start': startTime,
-                          'end': endTime,
-                        });
-                      }),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
-      );
-    },
+                  ),
+                )),
+      ),
+    ),
   );
 
   if (schedule != null) {
