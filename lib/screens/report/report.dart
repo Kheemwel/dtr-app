@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/core/api/datetime_api.dart';
 import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
+import 'package:flutter_dtr_app/core/utilities/date_range.dart';
 import 'package:flutter_dtr_app/core/utilities/double_to_time.dart';
 import 'package:flutter_dtr_app/core/utilities/notification_service.dart';
 import 'package:flutter_dtr_app/core/utilities/string_date_time_formatter.dart';
@@ -83,23 +84,31 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   void _changeStartDate(ReportOptions option) {
-    DateTime? date;
+    DateTime? startDate, endDate;
+    DateTime today = DateTime.now();
     switch (option) {
       case ReportOptions.lastWeek:
-        date = _endDate.subtract(const Duration(days: 7));
+        DateTimeRange date = DateRange.getLastWeek(today);
+        startDate = date.start;
+        endDate = date.end;
       case ReportOptions.thisWeek:
-        date = _endDate.subtract(Duration(days: _endDate.weekday));
+        DateTimeRange date = DateRange.getThisWeek(today);
+        startDate = date.start;
+        endDate = date.end;
       case ReportOptions.thisMonth:
-        date = DateTime(_endDate.year, _endDate.month, 1);
+        startDate = DateRange.getThisMonth(today);
+        endDate = today;
       case ReportOptions.thisYear:
-        date = DateTime(_endDate.year, 1, 1);
+        startDate = DateRange.getThisYear(today);
+        endDate = today;
       default:
-        date = DateTime.now();
+        startDate = today;
+        endDate = today;
     }
     setState(() {
       _reportOption = option;
-      _startDate = date!;
-      _endDate = DateTime.now();
+      _startDate = startDate!;
+      _endDate = endDate!;
     });
     _getRecords();
   }
