@@ -76,4 +76,12 @@ class SharedPref {
   static Future<void> clearAll() async {
     await _prefs.clear();
   }
+
+  static void setShowTutorial(bool show) {
+    _prefs.setBool('showTutorial', show);
+  }
+
+  static bool getShowTutorial() {
+    return _prefs.getBool('showTutorial') ?? true;
+  }
 }

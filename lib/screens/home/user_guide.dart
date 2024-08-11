@@ -1,7 +1,14 @@
 // Show dialog for a quick quide
 import 'package:flutter/material.dart';
-import 'package:flutter_dtr_app/widgets/text_button.dart';
+import 'package:flutter_dtr_app/core/theme.dart';
 import 'package:flutter_dtr_app/widgets/typography.dart';
+
+const List<String> userGuide = [
+  "Daily work hours are calculated from the start of your schedule to its end.",
+  "Lunch breaks are excluded from your daily work hours.",
+  "Tap either a date or the floating action button to record your time in and out, as well as break time.",
+  "Filled date indicates that there is already a record or an entry.",
+];
 
 void showGuide(BuildContext context) {
   showDialog(
@@ -9,39 +16,32 @@ void showGuide(BuildContext context) {
     builder: (BuildContext context) {
       return Dialog(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                    iconSize: 24,
+                    color: palette['dark'],
+                    onPressed: () {
+                      Navigator.pop(context, false);
+                    },
+                    icon: const Icon(Icons.close_rounded)),
+              ),
               Center(child: buildHeading3Text('Quick Guide')),
-              const SizedBox(
-                height: 10,
-              ),
-              buildRegularText(
-                  '1. Lunch breaks are excluded from your daily work hours.',
-                  fontSize: 16),
-              const SizedBox(
-                height: 10,
-              ),
-              buildRegularText(
-                  '2. Daily work hours are calculated from the start of your schedule to its end.',
-                  fontSize: 16),
-              const SizedBox(
-                height: 10,
-              ),
-              buildRegularText(
-                  '3. Gray cells indicate blank records. Tap to set the date, time in, and time out.',
-                  fontSize: 16),
+              ...List.generate(
+                  userGuide.length,
+                  (index) => Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                        child: buildRegularText("${index + 1}. ${userGuide[index]}", fontSize: 16),
+                      )),
               const SizedBox(
                 height: 30,
               ),
-              Center(
-                child: buildTextButtonSmall('Close', onPressed: () {
-                  Navigator.pop(context);
-                }, inverted: true),
-              )
             ],
           ),
         ),

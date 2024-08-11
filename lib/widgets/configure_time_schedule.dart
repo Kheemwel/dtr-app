@@ -18,13 +18,40 @@ Column buildTimeScheduleConfiguration({
   required Function(TimeOfDay start, TimeOfDay end) onSave,
   required String timeFormat,
   required bool use24HourFormat,
+  String? infoMessage,
+  bool showInfo = false,
 }) {
   final double totalHours = calculateTotalHours(start: startTimeShedule, end: endTimeSchedule);
   return Column(
     mainAxisAlignment: MainAxisAlignment.start,
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      buildTitleText(mainLabel),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          buildTitleText(mainLabel),
+          const Spacer(),
+          Visibility(
+            visible: showInfo,
+            child: Tooltip(
+              message: infoMessage ?? "",
+              triggerMode: TooltipTriggerMode.tap,
+              textStyle: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(color: Colors.white, fontSize: 14),
+              decoration:
+                  BoxDecoration(color: palette['dark'], borderRadius: BorderRadius.circular(10)),
+              child: Icon(
+                Icons.info_outline_rounded,
+                size: 18,
+                color: palette['dark'],
+              ),
+            ),
+          )
+        ],
+      ),
       TextButton(
         onPressed: () async {
           await _configureTimeScheduleDialog(

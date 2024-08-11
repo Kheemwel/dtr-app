@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dtr_app/core/api/datetime_api.dart';
+import 'package:flutter_dtr_app/core/constants.dart';
 import 'package:flutter_dtr_app/core/theme.dart';
 import 'package:flutter_dtr_app/data/models/daily_time_records_model.dart';
 import 'package:flutter_dtr_app/screens/home/add_entry.dart';
+import 'package:flutter_dtr_app/core/utilities/tutorial.dart';
 import 'package:flutter_dtr_app/widgets/typography.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:overlay_tutorial/overlay_tutorial.dart';
 
 class CalendarView extends StatefulWidget {
   const CalendarView({super.key});
@@ -38,10 +42,33 @@ class _CalendarViewState extends State<CalendarView> {
     'SAT',
   ];
 
-  DateTime _currentDate = DateTime.now();
+  late DateTime _currentDate;
   final int _minimumYear = 2000;
   final int _maximumYear = DateTime.now().year;
   final DailyTimeRecordsModel _dailyTimeRecordsModel = DailyTimeRecordsModel();
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshCalendar();
+    Tutorial.showTutorialNotifier.addListener(_refreshCalendar);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Tutorial.showTutorialNotifier.removeListener(_refreshCalendar);
+  }
+
+  void _refreshCalendar() {
+    if (Tutorial.showTutorialNotifier.value) {
+      _currentDate = DateTime(2024, 07, 1);
+    } else {
+      var now = DateTime.now();
+      _currentDate = DateTime(now.year, now.month, 1);
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -340,6 +367,13 @@ class _CalendarViewState extends State<CalendarView> {
     final List<String> existingDates = _dailyTimeRecordsModel.existingDatesNotifier.value;
     final bool isInRecord = existingDates.contains(date.formatToString());
 
+    final bool isFirstDayCurrentMonth =
+        date.isAtSameMomentAs(DateTime(dateToday.year, dateToday.month - 1, 1));
+    final bool is31thCurrentMonth =
+        date.isAtSameMomentAs(DateTime(dateToday.year, dateToday.month - 1, 31));
+
+    final link = LayerLink();
+
     Color? textColor;
     if (isPreviousMonth || isNextMonth) {
       textColor = palette['faded'];
@@ -348,6 +382,15 @@ class _CalendarViewState extends State<CalendarView> {
     } else {
       textColor = palette['dark'];
     }
+
+    if (is31thCurrentMonth && Tutorial.showTutorialNotifier.value) {
+      return _dateTutorialPage1(link, date);
+    }
+
+    if (isFirstDayCurrentMonth && Tutorial.showTutorialNotifier.value) {
+      return _dateTutorialPage2(link, date);
+    }
+
     return InkWell(
       borderRadius: BorderRadius.circular(180),
       onTap: () async {
@@ -371,6 +414,127 @@ class _CalendarViewState extends State<CalendarView> {
               color: isInRecord && !(isPreviousMonth || isNextMonth) ? palette['primary'] : null,
             ),
             child: buildRegularText(date.day.toString(), color: textColor, fontSize: 18)),
+      ),
+    );
+  }
+
+  Widget _dateTutorialPage2(LayerLink link, DateTime date) {
+    return CompositedTransformTarget(
+      link: link,
+      child: ValueListenableBuilder(
+        valueListenable: Tutorial.currentTutorialPageNotifier,
+        builder: (context, value, child) {
+          return OverlayTutorialHole(
+            enabled: Tutorial.showTutorialNotifier.value && value == 2,
+            overlayTutorialEntry: OverlayTutorialCircleEntry(radius: 30, overlayTutorialHints: [
+              OverlayTutorialWidgetHint(
+                builder: (context, entryRect) {
+                  return Material(
+                    color: Colors.transparent,
+                    child: CompositedTransformFollower(
+                      link: link,
+                      targetAnchor: Alignment.bottomLeft,
+                      followerAnchor: Alignment.topLeft,
+                      child: Container(
+                          width: 200,
+                          margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 30),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SvgPicture.asset(
+                                iconGuideArrowUp,
+                                width: 48,
+                                height: 48,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              buildTitleText(
+                                'Filled date indicates that there is already a record or an entry.',
+                                fontsize: 20,
+                                color: Colors.white,
+                              ),
+                            ],
+                          )),
+                    ),
+                  );
+                },
+              ),
+            ]),
+            child: Center(
+              child: Container(
+                  width: 40,
+                  height: 50,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(180),
+                    color: palette['primary'],
+                  ),
+                  child: buildRegularText(date.day.toString(), color: Colors.white, fontSize: 18)),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _dateTutorialPage1(LayerLink link, DateTime date) {
+    return CompositedTransformTarget(
+      link: link,
+      child: ValueListenableBuilder(
+        valueListenable: Tutorial.currentTutorialPageNotifier,
+        builder: (context, value, child) {
+          return OverlayTutorialHole(
+            enabled: Tutorial.showTutorialNotifier.value && value == 1,
+            overlayTutorialEntry: OverlayTutorialCircleEntry(radius: 30, overlayTutorialHints: [
+              OverlayTutorialWidgetHint(
+                builder: (context, entryRect) {
+                  return Material(
+                    color: Colors.transparent,
+                    child: CompositedTransformFollower(
+                      link: link,
+                      targetAnchor: Alignment.bottomLeft,
+                      followerAnchor: Alignment.bottomLeft,
+                      child: Container(
+                          width: 200,
+                          margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 70),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              buildTitleText(
+                                'Tap either a date or the floating action button to record your time in and out, as well as break time.',
+                                fontsize: 20,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              SvgPicture.asset(
+                                iconGuideArrowDown,
+                                width: 48,
+                                height: 48,
+                              ),
+                            ],
+                          )),
+                    ),
+                  );
+                },
+              ),
+            ]),
+            child: Center(
+              child: Container(
+                  width: 40,
+                  height: 50,
+                  alignment: Alignment.center,
+                  child:
+                      buildRegularText(date.day.toString(), color: palette['dark'], fontSize: 18)),
+            ),
+          );
+        },
       ),
     );
   }

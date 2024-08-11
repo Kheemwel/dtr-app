@@ -273,6 +273,8 @@ class _AddEntryState extends State<AddEntry> {
       },
       timeFormat: _timeFormat,
       use24HourFormat: _use24HourFormat,
+      showInfo: true,
+      infoMessage: "Lunch breaks are excluded from your daily work hours.",
     );
   }
 

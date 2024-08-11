@@ -528,6 +528,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.1+1"
+  overlay_tutorial:
+    dependency: "direct main"
+    description:
+      name: overlay_tutorial
+      sha256: "672609c2bae689d87d58099b1fa3a0bd91359d5457cda6d5555629f999544d73"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   package_config:
     dependency: transitive
     description:

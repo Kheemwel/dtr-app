@@ -5,8 +5,10 @@ import 'package:flutter_dtr_app/core/utilities/double_to_time.dart';
 import 'package:flutter_dtr_app/data/models/daily_time_records_model.dart';
 import 'package:flutter_dtr_app/screens/home/add_entry.dart';
 import 'package:flutter_dtr_app/screens/home/calendar_view.dart';
+import 'package:flutter_dtr_app/core/utilities/tutorial.dart';
 import 'package:flutter_dtr_app/widgets/data_overview_container.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:overlay_tutorial/overlay_tutorial.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +19,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final DailyTimeRecordsModel _dailyTimeRecordsModel = DailyTimeRecordsModel();
+  final link = LayerLink();
+
+  @override
+  void initState() {
+    super.initState();
+
+    Tutorial.showTutorialNotifier.addListener(_refreshTutorial);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Tutorial.showTutorialNotifier.removeListener(_refreshTutorial);
+  }
+
+  void _refreshTutorial() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,26 +57,64 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        Positioned(
-            bottom: 40,
-            right: 30,
-            child: FloatingActionButton(
-              onPressed: () async {
-                await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddEntry(
-                        date: DateTime.now(),
-                      ),
-                    ));
-              },
-              child: const Icon(
-                Icons.add,
-                size: 36,
-                color: Colors.white,
-              ),
-            )),
+        _floatingActionButton()
       ],
+    );
+  }
+
+  Widget _floatingActionButton() {
+    return Positioned(
+      bottom: 40,
+      right: 30,
+      child: CompositedTransformTarget(
+        link: link,
+        child: ValueListenableBuilder(
+          valueListenable: Tutorial.currentTutorialPageNotifier,
+          builder: (context, value, child) {
+            return OverlayTutorialHole(
+              enabled: Tutorial.showTutorialNotifier.value && value == 1,
+              overlayTutorialEntry: OverlayTutorialCircleEntry(radius: 40, overlayTutorialHints: [
+                OverlayTutorialWidgetHint(
+                  builder: (context, entryRect) {
+                    return Material(
+                      color: Colors.transparent,
+                      child: CompositedTransformFollower(
+                        link: link,
+                        targetAnchor: Alignment.bottomLeft,
+                        followerAnchor: Alignment.bottomLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 80),
+                          child: SvgPicture.asset(
+                            iconGuideArrowDown,
+                            width: 48,
+                            height: 48,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                )
+              ]),
+              child: FloatingActionButton(
+                onPressed: () async {
+                  await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddEntry(
+                          date: DateTime.now(),
+                        ),
+                      ));
+                },
+                child: const Icon(
+                  Icons.add,
+                  size: 36,
+                  color: Colors.white,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 

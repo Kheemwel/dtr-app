@@ -3,6 +3,7 @@ import 'package:flutter_dtr_app/core/theme.dart';
 import 'package:flutter_dtr_app/core/utilities/notification_service.dart';
 import 'package:flutter_dtr_app/data/models/daily_time_records_model.dart';
 import 'package:flutter_dtr_app/data/shared_preferences/sharedpref.dart';
+import 'package:flutter_dtr_app/core/utilities/tutorial.dart';
 import 'package:flutter_dtr_app/splash_screen.dart';
 
 void main() async {
@@ -16,6 +17,9 @@ void main() async {
 
   // Initialize local notification service
   await LocalNotificationService().init();
+
+  // Initialize tutorial
+  Tutorial.init();
 
   runApp(const MyApp());
 }
