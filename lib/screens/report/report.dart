@@ -34,10 +34,10 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  ReportOptions _reportOption = ReportOptions.custom;
+  static ReportOptions _reportOption = ReportOptions.custom;
 
-  DateTime _startDate = DateTime.now();
-  DateTime _endDate = DateTime.now();
+  static DateTime _startDate = DateTime.now();
+  static DateTime _endDate = DateTime.now();
 
   final String _dateFormat = SharedPref.getDateFormat();
   final String _timeFormat = SharedPref.getTimeFormat();
@@ -46,7 +46,13 @@ class _ReportScreenState extends State<ReportScreen> {
 
   String _totalHours = '0';
 
-  List<DailyTimeRecord> _records = [];
+  static List<DailyTimeRecord> _records = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getRecords();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +75,11 @@ class _ReportScreenState extends State<ReportScreen> {
           height: 100,
         ),
         buildTextButtonLarge('Generate Report', onPressed: () {
-          _exportFile();
+          if (_records.isNotEmpty) {
+            _exportFile();
+          } else {
+            showSnackBar(context, "No entries found for the selected date range");
+          }
         }),
       ],
     );
