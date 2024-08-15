@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dtr_app/custom_widgets/bordered_container.dart';
-import 'package:flutter_dtr_app/custom_widgets/dtr_cell.dart';
-import 'package:flutter_dtr_app/database/json_serialization.dart';
+import 'package:flutter_dtr_app/widgets/bordered_container.dart';
+import 'package:flutter_dtr_app/widgets/dtr_cell.dart';
+import 'package:flutter_dtr_app/data/database/json_serialization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'database/dtr_day.dart';
+import '../../data/database/dtr_day.dart';
 
 class DTRGrid extends StatefulWidget {
   const DTRGrid({super.key});
@@ -164,61 +164,18 @@ class _DTRGridState extends State<DTRGrid> {
     prefs.setString('dtr', json);
   }
 
-  // Show dialog for a quick quide
-  void _showGuide(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Center(child: Text('Quick Guide'),),
-          content: const SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text('1. Lunch breaks are excluded from your daily work hours.'),
-                SizedBox(height: 10,),
-                Text('2. Daily work hours are calculated from the start of your schedule to its end.'),
-                SizedBox(height: 10,),
-                Text('3. Gray cells indicate blank records. Tap to set the date, time in, and time out.'),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            Center(child: TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Close'),
-            ),)
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar
-      appBar: AppBar(
-        title: const Text('Daily Time Record'),
-        actions: [
-          // Help Button
-          IconButton(
-            tooltip: 'Help',
-              onPressed: () => _showGuide(context),
-              icon: const Icon(Icons.help, color: Colors.white,))
-        ],
-      ),
-
       // Main Content
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.all(10),
-            child: 
-            // Configuration Section
-            Wrap(
+            child:
+                // Configuration Section
+                Wrap(
               spacing: 25,
               runSpacing: 25,
               children: [
@@ -293,7 +250,7 @@ class _DTRGridState extends State<DTRGrid> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 25),
 
           // DTR Table
@@ -384,49 +341,56 @@ class _DTRGridState extends State<DTRGrid> {
                                 7,
                                 (dayIndex) {
                                   final day = _dtrWeeks[weekIndex][dayIndex];
-                                  return Tooltip(message: 'Edit', child: GestureDetector(
-                                      onTap: () async {
-                                        final DateTime? date =
-                                            await showDatePicker(
-                                          helpText: 'Select Date',
-                                          context: context,
-                                          initialDate: day.date,
-                                          firstDate: DateTime(2000),
-                                          lastDate: DateTime(2100),
-                                        );
-                                        if (date != null) {
-                                          final TimeOfDay? timeIn =
-                                              await showTimePicker(
-                                            helpText: 'Select Time In',
+                                  return Tooltip(
+                                    message: 'Edit',
+                                    child: GestureDetector(
+                                        onTap: () async {
+                                          final DateTime? date =
+                                              await showDatePicker(
+                                            helpText: 'Select Date',
                                             context: context,
-                                            initialTime: day.timeIn,
+                                            initialDate: day.date,
+                                            firstDate: DateTime(2000),
+                                            lastDate: DateTime(2100),
                                           );
-
-                                          if (timeIn != null) {
-                                            final TimeOfDay? timeOut =
+                                          if (date != null) {
+                                            final TimeOfDay? timeIn =
                                                 await showTimePicker(
-                                              helpText: 'Select Time Out',
+                                              helpText: 'Select Time In',
                                               context: context,
-                                              initialTime: day.timeOut,
+                                              initialTime: day.timeIn,
                                             );
-                                            if (timeOut != null) {
-                                              _updateDTRDay(weekIndex, dayIndex,
-                                                  date, timeIn, timeOut);
+
+                                            if (timeIn != null) {
+                                              final TimeOfDay? timeOut =
+                                                  await showTimePicker(
+                                                helpText: 'Select Time Out',
+                                                context: context,
+                                                initialTime: day.timeOut,
+                                              );
+                                              if (timeOut != null) {
+                                                _updateDTRDay(
+                                                    weekIndex,
+                                                    dayIndex,
+                                                    date,
+                                                    timeIn,
+                                                    timeOut);
+                                              }
                                             }
                                           }
-                                        }
-                                      },
-                                      child: DTRCell(
-                                        dateText: day.date != null
-                                            ? day.getFormattedDate()
-                                            : '',
-                                        timeInText: day.timeIn.hour > 0
-                                            ? day.timeIn.format(context)
-                                            : '',
-                                        timeOutText: day.timeOut.hour > 0
-                                            ? day.timeOut.format(context)
-                                            : '',
-                                      )),);
+                                        },
+                                        child: DTRCell(
+                                          dateText: day.date != null
+                                              ? day.getFormattedDate()
+                                              : '',
+                                          timeInText: day.timeIn.hour > 0
+                                              ? day.timeIn.format(context)
+                                              : '',
+                                          timeOutText: day.timeOut.hour > 0
+                                              ? day.timeOut.format(context)
+                                              : '',
+                                        )),
+                                  );
                                 },
                               ),
                               BorderedContainer(

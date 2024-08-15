@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dtr_app/custom_widgets/bordered_container.dart';
+import 'package:flutter_dtr_app/widgets/bordered_container.dart';
 
 class DTRCell extends StatelessWidget {
   const DTRCell(
