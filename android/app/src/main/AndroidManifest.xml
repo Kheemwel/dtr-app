@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
 
     <application
-        android:label="DTR App"
+        android:label="Daily Time Record"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true" 
